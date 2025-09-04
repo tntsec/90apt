@@ -1,0 +1,10 @@
+$TTL 1D
+@	IN SOA	gwm.com.cn. root.gwm.com.cn.zone. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	dns
+dns	A	127.0.0.1
+dzsms	A	127.0.0.1
