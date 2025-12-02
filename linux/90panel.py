@@ -2205,11 +2205,11 @@ def create_templates():
         
         // 页面加载时自动刷新状态
         window.addEventListener('load', function() {
-            setTimeout(refreshStatus, 500);
+            setTimeout(refreshStatus, 500000);
         });
         
         // 每30秒自动刷新状态
-        setInterval(refreshStatus, 30000);
+        setInterval(refreshStatus, 300000);
         
         // 点击模态框背景关闭模态框
         document.getElementById('passwordChangeModal').addEventListener('click', function(event) {
