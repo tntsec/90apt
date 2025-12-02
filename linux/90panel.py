@@ -721,7 +721,7 @@ def upload_apk():
     file.seek(0)  # 移回文件开头
     
     if file_size > app.config['MAX_CONTENT_LENGTH']:
-        return jsonify({'success': False, 'message': '文件太大，最大支持50MB'})
+        return jsonify({'success': False, 'message': '文件太大，最大支持500MB'})
     
     success, message = handle_apk_upload(file)
     
@@ -2139,10 +2139,10 @@ def create_templates():
             // 检查文件大小
             if (this.files[0]) {
                 const fileSize = this.files[0].size;
-                const maxSize = 50 * 1024 * 1024; // 50MB
+                const maxSize = 500 * 1024 * 1024; // 50MB
                 
                 if (fileSize > maxSize) {
-                    showNotification('文件太大，最大支持50MB', 'error');
+                    showNotification('文件太大，最大支持500MB', 'error');
                     this.value = '';
                     document.getElementById('fileName').textContent = '未选择文件';
                 }
