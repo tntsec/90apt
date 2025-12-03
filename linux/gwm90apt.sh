@@ -10,6 +10,7 @@ echo "只输入数字:";read gongcheng
 yum install bind nginx -y
 firewall-cmd --add-port=53/udp --permanent
 firewall-cmd --add-port=443/tcp --permanent
+firewall-cmd --add-port=80/tcp --permanent
 firewall-cmd --reload
 curl https://gwm.90apt.com/linux/named.conf > /etc/named.conf
 curl https://gwm.90apt.com/linux/named.rfc1912.zones > /etc/named.rfc1912.zones
