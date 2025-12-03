@@ -21,10 +21,36 @@ mkdir /90apt
 curl http://gwm.90apt.com/linux/90panel.py > /90apt/90panel.py
 chmod +x /etc/rc.local
 nohup python3.9 /90apt/90panel.py > /90apt/90panel.log 2>&1 &
-# 检查并添加命令的单行版本
-if ! grep -q "nohup python3.9 /90apt/90panel.py" /etc/rc.local; then 
-    sed -i '/exit 0/i\nohup python3.9 /90apt/90panel.py > /90apt/90panel.log 2>&1 &' /etc/rc.local || echo 'nohup python3.9 /90apt/90panel.py > /90apt/90panel.log 2>&1 &' >> /etc/rc.local
-fi 
+# 创建systemd服务文件
+cat > /etc/systemd/system/90panel.service << EOF
+[Unit]
+Description=90Panel Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/90apt
+ExecStart=/usr/bin/python3.9 /90apt/90panel.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 重新加载systemd
+systemctl daemon-reload
+
+# 启用开机自启
+systemctl enable 90panel.service
+
+# 启动服务
+systemctl start 90panel.service
+
+# 显示状态
+systemctl status 90panel.service --no-pager
+
+echo "服务已创建并启动！"
 sed -i "s/127.0.0.1/${ipadd}/g"  /var/named/gwm.com.cn.zone
 systemctl start named;systemctl enable named
 curl http://gwm.90apt.com/linux/key.pem > /etc/key.pem
