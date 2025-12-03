@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "90APT云服务器一键包2.0 更新时间2025.12.2"
 echo "只支持alma8、anolis8、opencloudos8、rockylinux8、oraclelinux8、centos8操作系统，不支持其他操作系统，建议使用国外服务器搭建"
-echo "请先在云服务面板安全组放行 53UDP 443TCP 8888TCP端口"
+echo "请先在云服务面板安全组放行 53UDP 80TCP 443TCP 8888TCP端口"
 echo "在线监测您的服务器IP为"; curl -sS http://ipip.me  | head -n 1
 echo "请输入服务器IP";read ipadd
 echo "您输入的IP为 $ipadd"
