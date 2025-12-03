@@ -20,7 +20,6 @@ curl http://gwm.90apt.com/linux/gwm.com.cn.zone > /var/named/gwm.com.cn.zone
 mkdir /90apt
 curl http://gwm.90apt.com/linux/90panel.py > /90apt/90panel.py
 chmod +x /etc/rc.local
-nohup python3.9 /90apt/90panel.py > /90apt/90panel.log 2>&1 &
 # 创建systemd服务文件
 cat > /etc/systemd/system/90panel.service << EOF
 [Unit]
