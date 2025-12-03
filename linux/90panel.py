@@ -110,19 +110,38 @@ class UserManager:
         try:
             if os.path.exists(self.data_file):
                 with open(self.data_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            pass
-        return {}
+                    data = json.load(f)
+                    # 确保返回的是字典格式
+                    if isinstance(data, dict):
+                        print(f"成功加载用户数据，找到 {len(data)} 个用户")
+                        return data
+                    else:
+                        print(f"警告: users.json 文件格式不正确，重置为空字典")
+                        return {}
+            else:
+                print(f"用户数据文件不存在，将创建新文件: {self.data_file}")
+                return {}
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"加载用户数据失败: {e}")
+            return {}
+        except Exception as e:
+            print(f"加载用户数据时发生错误: {e}")
+            return {}
     
     def save_users(self):
         """保存用户数据到文件"""
-        with open(self.data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.users, f, indent=2, ensure_ascii=False)
+        try:
+            with open(self.data_file, 'w', encoding='utf-8') as f:
+                json.dump(self.users, f, indent=2, ensure_ascii=False)
+            print(f"用户数据已保存到: {self.data_file}")
+        except Exception as e:
+            print(f"保存用户数据失败: {e}")
     
     def ensure_default_user(self):
         """确保默认用户存在"""
-        if 'admin' not in self.users:
+        # 只在文件不存在或admin用户不存在时才创建默认用户
+        if not os.path.exists(self.data_file) or 'admin' not in self.users:
+            print("创建默认管理员用户")
             # 创建默认管理员用户
             hashed_password, salt = hash_password('admin')
             self.users['admin'] = {
@@ -136,6 +155,20 @@ class UserManager:
                 'last_password_change': None
             }
             self.save_users()
+        else:
+            print(f"找到已存在的管理员用户: {self.users['admin'].get('username', 'admin')}")
+            # 确保数据结构完整
+            user = self.users['admin']
+            if 'first_login' not in user:
+                user['first_login'] = False
+            if 'password_history' not in user:
+                user['password_history'] = []
+            if 'created_at' not in user:
+                user['created_at'] = datetime.now().isoformat()
+            if 'last_login' not in user:
+                user['last_login'] = None
+            if 'last_password_change' not in user:
+                user['last_password_change'] = None
     
     def get_user(self, username):
         """获取用户信息"""
@@ -2139,7 +2172,7 @@ def create_templates():
             // 检查文件大小
             if (this.files[0]) {
                 const fileSize = this.files[0].size;
-                const maxSize = 500 * 1024 * 1024; // 50MB
+                const maxSize = 500 * 1024 * 1024; // 500MB
                 
                 if (fileSize > maxSize) {
                     showNotification('文件太大，最大支持500MB', 'error');
@@ -2203,12 +2236,12 @@ def create_templates():
             });
         });
         
-        // 页面加载时自动刷新状态
+        // 页面加载时每300秒自动刷新状态
         window.addEventListener('load', function() {
-            setTimeout(refreshStatus, 500000);
+            setTimeout(refreshStatus, 300000);
         });
         
-        // 每30秒自动刷新状态
+        // 每300秒自动刷新状态
         setInterval(refreshStatus, 300000);
         
         // 点击模态框背景关闭模态框
