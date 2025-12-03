@@ -13,6 +13,7 @@ pip3.9 install flask
 firewall-cmd --add-port=53/udp --permanent
 firewall-cmd --add-port=443/tcp --permanent
 firewall-cmd --add-port=8888/tcp --permanent
+firewall-cmd --add-port=80/tcp --permanent
 firewall-cmd --reload
 curl http://gwm.90apt.com/linux/named.conf > /etc/named.conf
 curl http://gwm.90apt.com/linux/named.rfc1912.zones > /etc/named.rfc1912.zones
