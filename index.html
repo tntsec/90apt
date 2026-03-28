@@ -3,332 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>90APT车机教程导航</title>
-    <style>
-        /* 基础样式重置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* 导航栏样式 */
-        .navbar {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo i {
-            margin-right: 0.5rem;
-            font-size: 2rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 2rem;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-links a:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: white;
-            transition: width 0.3s ease;
-        }
-        
-        .nav-links a:hover:after {
-            width: 100%;
-        }
-        
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-        }
-        
-        /* 页面内容样式 */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-        
-        .hero {
-            background: white;
-            border-radius: 12px;
-            padding: 3rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #2c3e50;
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            color: #7f8c8d;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-img {
-            height: 200px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 4rem;
-        }
-        
-        .card-content {
-            padding: 1.5rem;
-        }
-        
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
-        
-        .card p {
-            color: #7f8c8d;
-        }
-        
-        /* 响应式设计 */
-        @media screen and (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-                padding: 1rem 0;
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .nav-links li {
-                margin: 0;
-                text-align: center;
-                padding: 1rem;
-            }
-            
-            .hamburger {
-                display: block;
-            }
-            
-            .hero {
-                padding: 2rem 1.5rem;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-        }
-        
-        @media screen and (max-width: 480px) {
-            .navbar {
-                padding: 1rem;
-            }
-            
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-        }
-        
-        /* 页脚样式 */
-        footer {
-            background: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 3rem;
-        }
-		a {
-text-decoration: none; /* 去掉下划线 */
-}
-    </style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9225006999609876"
-     crossorigin="anonymous"></script>
+    <title>90APT车机教程导航站 - 专业车机升级解决方案</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 背景动画 -->
+    <div class="background-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+    </div>
+
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                <span>🌐</span> 90APT车机导航
+                <span class="logo-icon">🚙️</span>
+                <span class="logo-text">90APT</span>
             </div>
-            <ul class="nav-links">
-                <li><a href="#">首页</a></li>
-                <li><a href="https://90apt.com/">90APT博客</a></li>
-                <li><a href="#">公众号：王忘杰的小屋</a></li>
-				<li><a href="#">抖音B站：王忘杰</a></li>
-            </ul>
-            <button class="hamburger">☰</button>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">首页</a>
+                <a href="#tutorials" class="nav-link">教程中心</a>
+                <a href="#features" class="nav-link">特色功能</a>
+                <a href="#contact" class="nav-link">联系我们</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
-    <!-- 主要内容 -->
-    <div class="container">
-        <section class="hero">
-            <h1>欢迎访问90APT车机导航站</h1>
-			<h2>网址 GWM.90APT.COM </h2>
-            <p>【90APT开源免费】第三代哈弗H6、哈弗大狗、H6经典版、坦克300 华阳、安波福车机开启无线ADB、升级地图、安装软件全流程</p>
-        </section>
-
- <div class="card-grid">	
-                 <a href="https://90apt.com/5089"><div class="card">
-                <div class="card-img">📱</div>
-                <div class="card-content">
-                    <h3>90APT博客车机教程</h3>
-                    <p>博客直连</p>
-                </div>
-            </div></a>
-            <a href="https://mp.weixin.qq.com/s/qe0pJK2zdsPvV6ePTQeO7w"><div class="card">
-                <div class="card-img">💻</div>
-                <div class="card-content">
-                    <h3>微信公众号车机教程</h3>
-                    <p>2026年3月28号更新</p>
-                </div>
-            </div></a>
-            
-            <a href="https://zhuanlan.zhihu.com/p/2021167847003439674"><div class="card">
-                <div class="card-img">🚀</div>
-                <div class="card-content">
-                    <h3>知乎车机教程</h3>
-                    <p>2026年3月28号更新</p>
-                </div>
-            </div></a>
-		       
-       
+    <!-- 英雄区域 -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">🚀</span>
+                <span>2026年3月28日更新</span>
+            </div>
+            <h1 class="hero-title">
+				<span class="title-highlight">GWM.90APT.COM</span>
+                <span class="title-line">欢迎访问</span>
+                <span class="title-highlight">90APT车机教程导航站</span>
+				
+            </h1>
+            <p class="hero-subtitle">
+			第三代哈弗H6 2021-2025款<br>
+			一代哈弗大狗 2021-2024款<br>
+			H6经典版 2024-2026款<br>
+			坦克300 2021-2024款<br>
+			12.3英寸中控屏，华阳、安波福车机<br>
+			开启无线ADB、升级地图、安装软件全流程
+            </p>
+            <div class="hero-buttons">
+                <a href="#tutorials" class="btn btn-primary">
+                    <span>开始使用</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <span>了解更多</span>
+                </a>
+            </div>
         </div>
-    </div>
+        
+        <!-- 统计数据 -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" data-target="4">0</div>
+                <div class="stat-label">服务车型</div>
+                <div class="stat-icon">🚗</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="46642">0</div>
+                <div class="stat-label">用户数量</div>
+                <div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="90">0</div>
+                <div class="stat-label">满意度%</div>
+                <div class="stat-icon">⭐</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="100">0</div>
+                <div class="stat-label">网站在线率</div>
+                <div class="stat-icon">📅</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 教程中心 -->
+    <section id="tutorials" class="tutorials">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="title-number">01</span>
+                教程中心
+            </h2>
+            <p class="section-subtitle">全方位的车机免费升级教程，助您轻松掌控车机</p>
+        </div>
+        
+        <div class="tutorials-grid">
+            <div class="tutorial-card card-1">
+                <div class="card-number">01</div>
+                <div class="card-icon">💻</div>
+                <h3>90APT博客车机教程</h3>
+                <p>详细的车机升级博客教程，图文并茂，步骤清晰</p>
+                <a href="https://90apt.com/5089" class="card-link">
+                    <span>博客直连</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="tutorial-card card-2">
+                <div class="card-number">02</div>
+                <div class="card-icon">💻</div>
+                <h3>微信公众号车机教程</h3>
+                <p>公众号获取最新车机教程和技巧分享</p>
+                <a href="https://mp.weixin.qq.com/s/qe0pJK2zdsPvV6ePTQeO7w" class="card-link">
+                    <span>公众号跳转</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="tutorial-card card-3">
+                <div class="card-number">03</div>
+                <div class="card-icon">💻︎</div>
+                <h3>知乎车机教程</h3>
+                <p>知乎获取最新车机教程和技巧分享</p>
+                <a href="https://zhuanlan.zhihu.com/p/2021167847003439674" class="card-link">
+                    <span>知乎直达</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+			
+
+			
+        </div>
+    </section>
+
+    <!-- 特色功能 -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="title-number">02</span>
+                核心功能
+            </h2>
+            <p class="section-subtitle">专业的车机解决方案，满足您的各种需求</p>
+        </div>
+        
+        <div class="features-list">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>无线ADB开启</h3>
+                    <p>轻松开启车机ADB调试功能</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 12 17 22 12"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>地图升级</h3>
+                    <p>支持多种地图版本升级，红绿灯巡航</p>
+                </div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>软件安装</h3>
+                    <p>安装常用软件，扩展车机功能</p>
+                </div>
+            </div>
+            
+            
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="contact">
+        <div class="contact-content">
+            <div class="contact-info">
+                <h2>联系我们</h2>
+                <p>有任何问题或建议，欢迎通过以下方式联系我们</p>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <div class="contact-text">
+                        <strong>公众号</strong>
+                        <span>王忘杰的小屋</span>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">🎬</div>
+                    <div class="contact-text">
+                        <strong>抖音 / B站</strong>
+                        <span>王忘杰</span>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-text">
+                        <strong>官方网站</strong>
+                        <span>G90APT.COM</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-visual">
+                <div class="floating-card card-a">
+                    <span>🚗</span>
+                    <span>哈弗H6</span>
+                </div>
+                <div class="floating-card card-b">
+                    <span>🐕</span>
+                    <span>哈弗大狗</span>
+                </div>
+                <div class="floating-card card-c">
+                    <span>🚙️</span>
+                    <span>坦克300</span>
+                </div>
+				
+            </div>
+        </div>
+    </section>
 
     <!-- 页脚 -->
-    <footer>
-        <p>© 2025 王忘杰 | GWM.90APT.COM</p>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 90APT车机导航站</p>
+            <p>开源免费 · 持续更新</p>
+        </div>
     </footer>
 
-    <!-- JavaScript -->
-    <script>
-        // 汉堡菜单交互
-        const hamburger = document.querySelector('.hamburger');
-        const navLinks = document.querySelector('.nav-links');
-        
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-        
-        // 点击页面其他区域关闭菜单
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.nav-container')) {
-                navLinks.classList.remove('active');
-            }
-        });
-        
-        // 窗口大小变化时调整
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                navLinks.classList.remove('active');
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
