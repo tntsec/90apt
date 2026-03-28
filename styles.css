@@ -432,6 +432,9 @@ body {
     transition: all var(--transition-speed) ease;
     opacity: 0;
     transform: translateY(30px);
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .tutorial-card.visible {
@@ -481,6 +484,7 @@ body {
     margin-bottom: 1rem;
     position: relative;
     z-index: 1;
+    text-decoration: none;
 }
 
 .tutorial-card p {
@@ -489,14 +493,15 @@ body {
     line-height: 1.7;
     position: relative;
     z-index: 1;
+    text-decoration: none;
 }
 
 .card-link {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    color: var(--accent-color);
     text-decoration: none;
+    color: var(--accent-color);
     font-weight: 600;
     position: relative;
     z-index: 1;
