@@ -92,11 +92,13 @@
       var name = device.productName || device.manufacturerName || device.serialNumber || '未知设备';
       log('已选择设备：' + name);
       var transport = new WebADB.AdbWebUsbTransport(device);
+      transport.onLog = function (msg) { log(msg, 'info'); };
       return transport.connect().then(function () {
         log('已占用 ADB 接口，正在建立连接…');
         client = new WebADB.AdbClient(transport, { comment: 'webadb@local' });
         client.onError = handleTransportError;
         client.onClose = handleTransportError;
+        client.onStatus = function (msg) { log(msg, 'warn'); };
         return client.connect();
       });
     }).then(function () {

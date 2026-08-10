@@ -7,7 +7,7 @@
   var textEncode = WebADB.textEncode;
   var textDecode = WebADB.textDecode;
 
-  var CONNECT_TIMEOUT_MS = 60000;
+  var CONNECT_TIMEOUT_MS = 120000;
 
   function AdbClient(transport, options) {
     this.transport = transport;
@@ -42,10 +42,15 @@
   AdbClient.prototype._authLoop = function (jwk, pubBlob) {
     var self = this;
     var deadline = Date.now() + CONNECT_TIMEOUT_MS;
+    var tokenCount = 0;
+
+    function sendPubkey() {
+      return self.transport.send(buildPacket(Cmd.AUTH, AuthType.RSAPUBLICKEY, 0, textEncode(pubBlob)));
+    }
 
     function step() {
       if (Date.now() > deadline) {
-        return Promise.reject(new Error('连接超时，请在手机上确认“允许 USB 调试”'));
+        return Promise.reject(new Error('连接超时，请确认手机屏幕上出现了「允许 USB 调试」弹窗并点击允许'));
       }
       return self.transport.recvPacket().then(function (pkt) {
         if (pkt.command === Cmd.CNXN) {
@@ -53,11 +58,21 @@
         }
         if (pkt.command === Cmd.AUTH) {
           if (pkt.arg0 === AuthType.TOKEN) {
+            tokenCount++;
+            if (tokenCount > 1) {
+              // 第二次收到 TOKEN 说明上一次签名未被认可：此时应主动上报公钥，
+              // 触发手机上的「允许 USB 调试」弹窗。adb 协议中 host 用完私钥后
+              // 主动发送 RSAPUBLICKEY（现代 adbd 不会反过来请求公钥）。
+              if (self.onStatus) self.onStatus('已发送公钥，请在手机上点击「允许 USB 调试」');
+              return sendPubkey().then(step);
+            }
             return WebADB.Crypto.signToken(pkt.payload, jwk).then(function (signature) {
               return self.transport.send(buildPacket(Cmd.AUTH, AuthType.SIGNATURE, 0, signature));
             }).then(step);
           } else if (pkt.arg0 === AuthType.RSAPUBLICKEY) {
-            return self.transport.send(buildPacket(Cmd.AUTH, AuthType.RSAPUBLICKEY, 0, textEncode(pubBlob))).then(step);
+            // 部分旧版本 adbd 会主动请求公钥
+            if (self.onStatus) self.onStatus('已发送公钥，请在手机上点击「允许 USB 调试」');
+            return sendPubkey().then(step);
           }
           return step();
         }

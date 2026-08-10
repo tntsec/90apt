@@ -88,23 +88,49 @@
       }
       self.inEndpoint = inEp.endpointNumber;
       self.outEndpoint = outEp.endpointNumber;
+      self._debug('接口 #' + self.ifaceNumber + ' 配置 ' +
+        (found.config ? found.config.configurationValue : '?') +
+        ' alt ' + found.alt.alternateSetting +
+        ' IN 端点 ' + self.inEndpoint + ' OUT 端点 ' + self.outEndpoint);
     });
   };
 
   AdbWebUsbTransport.prototype.send = function (bytes) {
+    var self = this;
+    var dv = new DataView(bytes.buffer, bytes.byteOffset, 24);
+    self._debug('发包 cmd=0x' + dv.getUint32(0, true).toString(16) +
+      ' arg0=' + dv.getUint32(4, true) + ' arg1=' + dv.getUint32(8, true) +
+      ' len=' + dv.getUint32(12, true));
     return this.device.transferOut(this.outEndpoint, bytes);
+  };
+
+  AdbWebUsbTransport.prototype._debug = function (msg) {
+    if (this.onLog) this.onLog('[transport] ' + msg);
   };
 
   AdbWebUsbTransport.prototype._fill = function () {
     var self = this;
-    return this.device.transferIn(this.inEndpoint, MAX_TRANSFER_SIZE).then(function (res) {
-      if (res.status !== 'ok') {
-        throw new Error('USB 读取失败: ' + res.status);
-      }
-      var data = new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
-      self._chunks.push(data);
-      self._chunkLength += data.byteLength;
-    });
+    var attempts = 0;
+
+    function attempt() {
+      attempts++;
+      return self.device.transferIn(self.inEndpoint, MAX_TRANSFER_SIZE).then(function (res) {
+        if (res.status !== 'ok') {
+          throw new Error('USB 读取失败: ' + res.status);
+        }
+        var data = new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
+        self._chunks.push(data);
+        self._chunkLength += data.byteLength;
+      }).catch(function (err) {
+        if (attempts < 3 && /transfer|设备/i.test(err.message)) {
+          self._debug('transferIn 失败，' + attempts + '/3 重试：' + err.message);
+          return new Promise(function (resolve) { setTimeout(resolve, 500); }).then(attempt);
+        }
+        throw err;
+      });
+    }
+
+    return attempt();
   };
 
   AdbWebUsbTransport.prototype.recvBytes = function (count) {
@@ -133,6 +159,14 @@
     return step();
   };
 
+  AdbWebUsbTransport.prototype._hex = function (bytes, maxLen) {
+    var out = [];
+    for (var i = 0; i < bytes.length && i < (maxLen || 32); i++) {
+      out.push((bytes[i] >>> 4).toString(16) + (bytes[i] & 0xf).toString(16));
+    }
+    return out.join(' ');
+  };
+
   AdbWebUsbTransport.prototype.recvPacket = function () {
     var self = this;
     return this.recvBytes(WebADB.HEADER_SIZE).then(function (header) {
@@ -141,10 +175,23 @@
       var arg0 = dv.getUint32(4, true);
       var arg1 = dv.getUint32(8, true);
       var length = dv.getUint32(12, true);
+      var known = [WebADB.Cmd.SYNC, WebADB.Cmd.CNXN, WebADB.Cmd.AUTH,
+                   WebADB.Cmd.OPEN, WebADB.Cmd.OKAY, WebADB.Cmd.CLSE, WebADB.Cmd.WRTE];
+      if (known.indexOf(command) === -1) {
+        throw new Error('收到非 ADB 报文（command=0x' + command.toString(16) +
+          ' 头：' + self._hex(header) + '），接口可能选错');
+      }
+      if (length > 16 * 1024 * 1024) {
+        throw new Error('报文长度异常（' + length + ' 头：' + self._hex(header) + '）');
+      }
+      self._debug('收包 cmd=0x' + command.toString(16) + ' arg0=' + arg0 + ' arg1=' + arg1 + ' len=' + length);
       if (length === 0) {
         return { command: command, arg0: arg0, arg1: arg1, length: 0, payload: new Uint8Array(0) };
       }
       return self.recvBytes(length).then(function (payload) {
+        if (command === WebADB.Cmd.AUTH && arg0 === WebADB.AuthType.TOKEN) {
+          self._debug('token=' + self._hex(payload, 32));
+        }
         return { command: command, arg0: arg0, arg1: arg1, length: length, payload: payload };
       });
     });

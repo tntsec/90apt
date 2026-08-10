@@ -6,6 +6,7 @@
   var KEY_SIZE_BYTES = KEY_SIZE_BITS / 8;
   var MODULUS_WORDS = KEY_SIZE_BITS / 32;
   var PUBKEY_BLOB_SIZE = 524;
+  var AUTH_TOKEN_SIZE = 20;
   var POW2_32 = 1n << 32n;
   var DIGEST_INFO_SHA1 = [0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14];
 
@@ -122,29 +123,27 @@
   }
 
   function signToken(token, jwk) {
-    var nBytes = base64UrlToBytes(jwk.n);
-    return sha1(nBytes).then(function (modulusHash) {
-      var combined = new Uint8Array(token.length + modulusHash.length);
-      combined.set(token, 0);
-      combined.set(modulusHash, token.length);
-      return sha1(combined);
-    }).then(function (digest) {
-      var em = new Uint8Array(KEY_SIZE_BYTES);
-      em[0] = 0x00;
-      em[1] = 0x01;
-      var idx = 2;
-      var tLen = DIGEST_INFO_SHA1.length + digest.length;
-      while (idx < em.length - 1 - tLen) em[idx++] = 0xff;
-      em[idx++] = 0x00;
-      for (var i = 0; i < DIGEST_INFO_SHA1.length; i++) em[idx++] = DIGEST_INFO_SHA1[i];
-      em.set(digest, idx);
+    if (token.length !== AUTH_TOKEN_SIZE) {
+      return Promise.reject(new Error('AUTH token 长度异常：' + token.length));
+    }
+    // adbd 调用 RSA_sign(NID_sha1, token, ...) 时把 20 字节 token 本身当作
+    // SHA-1 摘要处理（不重新哈希），因此 PKCS#1 v1.5 填充内容为
+    // "DigestInfo(SHA1) || token"，然后做 m^d mod n。
+    var em = new Uint8Array(KEY_SIZE_BYTES);
+    em[0] = 0x00;
+    em[1] = 0x01;
+    var idx = 2;
+    var tLen = DIGEST_INFO_SHA1.length + token.length;
+    while (idx < em.length - 1 - tLen) em[idx++] = 0xff;
+    em[idx++] = 0x00;
+    for (var i = 0; i < DIGEST_INFO_SHA1.length; i++) em[idx++] = DIGEST_INFO_SHA1[i];
+    em.set(token, idx);
 
-      var n = bytesToBigInt(nBytes);
-      var d = bytesToBigInt(base64UrlToBytes(jwk.d));
-      var m = bytesToBigInt(em);
-      var signature = modPow(m, d, n);
-      return bigIntToBytes(signature, KEY_SIZE_BYTES);
-    });
+    var n = bytesToBigInt(base64UrlToBytes(jwk.n));
+    var d = bytesToBigInt(base64UrlToBytes(jwk.d));
+    var m = bytesToBigInt(em);
+    var signature = modPow(m, d, n);
+    return Promise.resolve(bigIntToBytes(signature, KEY_SIZE_BYTES));
   }
 
   function buildPublicKeyBlob(jwk, comment) {
