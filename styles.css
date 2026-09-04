@@ -387,6 +387,89 @@ body {
     opacity: 0.6;
 }
 
+/* ===== 防骗提醒 ===== */
+.anti-scam-section {
+    padding: 100px 5%;
+    position: relative;
+}
+
+.anti-scam {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1.6rem;
+    background: rgba(245, 87, 108, 0.12);
+    border: 1px solid rgba(245, 87, 108, 0.35);
+    border-radius: 20px;
+    text-align: left;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 16px 40px rgba(245, 87, 108, 0.12);
+}
+
+.anti-scam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    margin-bottom: 0.9rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.anti-scam p {
+    color: var(--text-secondary);
+    font-size: 0.98rem;
+    line-height: 1.8;
+}
+
+.anti-scam-more {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: #ffb4c0;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.anti-scam-more:hover {
+    color: #fff;
+}
+
+.anti-scam-full {
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+    padding: 2rem;
+}
+
+.anti-scam-full h3 {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+.anti-scam-full p + p {
+    margin-top: 0.8rem;
+}
+
+.anti-scam-evidence {
+    margin-top: 1.4rem;
+}
+
+.anti-scam-evidence img {
+    display: block;
+    width: 100%;
+    max-width: 720px;
+    height: auto;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.anti-scam-evidence figcaption {
+    margin-top: 0.6rem;
+    color: #ffb4c0;
+    font-size: 0.9rem;
+}
+
 /* ===== 教程中心 ===== */
 .tutorials {
     padding: 100px 5%;
