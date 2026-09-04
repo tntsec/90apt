@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let editorOriginalData = null;
 
     const PRESET_INFO = {
+        '7.1.7': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: 'J451640)$n?2\x10q\x1b' },
         '7.5': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: '1234567812345678' },
         '8.1': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
         '8.5': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },

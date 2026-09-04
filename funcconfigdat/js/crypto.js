@@ -1,5 +1,10 @@
 const FuncConfigCrypto = (() => {
     const PRESETS = {
+        '7.1.7': {
+            key: 'Jbga21autoj7ZAsF',
+            iv: 'Jbga21autoj7ZAsF',
+            prefix: 'J451640)$n?2\x10q\x1b'
+        },
         '7.5': {
             key: 'Jbga21autoj7ZAsF',
             iv: 'Jbga21autoj7ZAsF',
