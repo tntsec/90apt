@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FuncConfig.dat 在线加解密工具</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>FuncConfig.dat 在线加解密</h1>
+    <p class="subtitle">支持高德地图车机版 7.5 / 8.1 / 8.5 / 9.1 / 9.5</p>
+
+    <div id="statusMessage" class="status-message"></div>
+
+    <div class="card">
+        <div class="form-group">
+            <label>选择文件：<span class="file-name" id="fileName"></span></label>
+            <input type="file" id="fileInput" accept=".dat,.txt,.json" style="display:none;">
+            <label for="fileInput" class="file-label" id="fileLabel">点击或拖拽上传 .dat、.txt 或 .json 文件</label>
+        </div>
+
+        <div class="form-group">
+            <label>版本选择：</label>
+            <div class="version-switch">
+                <input type="radio" id="ver75" name="preset_mode" value="7.5">
+                <label for="ver75">7.5</label>
+                <input type="radio" id="ver81" name="preset_mode" value="8.1">
+                <label for="ver81">8.1</label>
+                <input type="radio" id="ver85" name="preset_mode" value="8.5" checked>
+                <label for="ver85">8.5</label>
+                <input type="radio" id="ver91" name="preset_mode" value="9.1">
+                <label for="ver91">9.1</label>
+                <input type="radio" id="ver95" name="preset_mode" value="9.5">
+                <label for="ver95">9.5</label>
+                <input type="radio" id="vercustom" name="preset_mode" value="custom">
+                <label for="vercustom">自定义</label>
+            </div>
+        </div>
+
+        <div id="presetInfo" class="preset-info"></div>
+
+        <div class="custom-input-group" id="customKeyGroup">
+            <label>KEY（16字节）：</label>
+            <input type="text" id="keyInput" maxlength="16" placeholder="请输入16字节KEY" disabled>
+        </div>
+
+        <div class="custom-input-group" id="customIvGroup">
+            <label>IV（16字节）：</label>
+            <input type="text" id="ivInput" maxlength="16" placeholder="请输入16字节IV" disabled>
+        </div>
+
+        <div class="custom-input-group" id="customPrefixGroup">
+            <label>数据填充 Prefix（16字节）：</label>
+            <input type="text" id="prefixInput" maxlength="16" placeholder="请输入16字节数据填充" disabled>
+        </div>
+
+        <div class="form-group actions" style="margin-top: 16px;">
+            <button type="button" id="btn-decrypt" class="btn btn-primary">解密文件</button>
+            <button type="button" id="btn-encrypt" class="btn btn-primary">加密文件</button>
+        </div>
+
+        <div id="fileTypeTip" class="file-type-tip"></div>
+    </div>
+
+    <div id="editorContainer" class="editor-container">
+        <div class="editor-header">
+            <h3 id="editorTitle">编辑器</h3>
+            <div class="editor-actions">
+                <button type="button" id="btn-editor-format" class="editor-btn editor-btn-secondary">格式化 JSON</button>
+                <button type="button" id="btn-editor-download" class="editor-btn editor-btn-save">加密并下载</button>
+                <button type="button" id="btn-editor-cancel" class="editor-btn editor-btn-cancel">取消</button>
+            </div>
+        </div>
+        <textarea id="editorContent" class="editor-content" spellcheck="false"></textarea>
+    </div>
+
+    <div class="footer">
+        <p>算法：AES-CBC / NoPadding | 完全在浏览器本地运行，数据不上传服务器</p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="js/crypto.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
