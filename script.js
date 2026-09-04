@@ -6,6 +6,16 @@ const navLinks = document.querySelectorAll('.nav-link');
 const statNumbers = document.querySelectorAll('.stat-number');
 const tutorialCards = document.querySelectorAll('.tutorial-card');
 const featureItems = document.querySelectorAll('.feature-item');
+const productCards = document.querySelectorAll('.products-card');
+
+const userStat = document.querySelector('.stat-number[data-stat="users"]');
+if (userStat) {
+    const baseCount = parseInt(userStat.getAttribute('data-target'), 10) || 0;
+    const storageKey = '90apt-user-count';
+    const nextCount = (parseInt(localStorage.getItem(storageKey), 10) || baseCount) + 1;
+    localStorage.setItem(storageKey, String(nextCount));
+    userStat.setAttribute('data-target', String(nextCount));
+}
 
 // ===== 导航栏滚动效果 =====
 let lastScrollY = window.scrollY;
@@ -120,6 +130,11 @@ featureItems.forEach((item, index) => {
     fadeObserver.observe(item);
 });
 
+productCards.forEach((card, index) => {
+    card.style.transitionDelay = `${index * 0.1}s`;
+    fadeObserver.observe(card);
+});
+
 // ===== 导航链接高亮 =====
 const sections = document.querySelectorAll('section[id]');
 
@@ -161,7 +176,7 @@ if (heroContent) {
 }
 
 // ===== 卡片3D效果 =====
-document.querySelectorAll('.tutorial-card, .feature-item, .stat-card').forEach(card => {
+document.querySelectorAll('.tutorial-card, .feature-item, .stat-card, .products-card').forEach(card => {
     card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width - 0.5;
