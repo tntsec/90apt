@@ -7,6 +7,7 @@ const statNumbers = document.querySelectorAll('.stat-number');
 const tutorialCards = document.querySelectorAll('.tutorial-card');
 const featureItems = document.querySelectorAll('.feature-item');
 const productCards = document.querySelectorAll('.products-card');
+const backToTop = document.getElementById('backToTop');
 
 const userStat = document.querySelector('.stat-number[data-stat="users"]');
 if (userStat) {
@@ -28,6 +29,10 @@ window.addEventListener('scroll', () => {
         navbar.classList.add('scrolled');
     } else {
         navbar.classList.remove('scrolled');
+    }
+
+    if (backToTop) {
+        backToTop.classList.toggle('visible', currentScrollY > 400);
     }
     
     lastScrollY = currentScrollY;
