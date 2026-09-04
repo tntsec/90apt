@@ -8,15 +8,6 @@ const tutorialCards = document.querySelectorAll('.tutorial-card');
 const featureItems = document.querySelectorAll('.feature-item');
 const productCards = document.querySelectorAll('.products-card');
 
-const userStat = document.querySelector('.stat-number[data-stat="users"]');
-if (userStat) {
-    const baseCount = parseInt(userStat.getAttribute('data-target'), 10) || 0;
-    const storageKey = '90apt-user-count';
-    const nextCount = (parseInt(localStorage.getItem(storageKey), 10) || baseCount) + 1;
-    localStorage.setItem(storageKey, String(nextCount));
-    userStat.setAttribute('data-target', String(nextCount));
-}
-
 // ===== 导航栏滚动效果 =====
 let lastScrollY = window.scrollY;
 
