@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let editorOriginalData = null;
 
     const PRESET_INFO = {
-        '7.1.7': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: 'J451640)$n?2\x10q\x1b' },
+        '7.1.7': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: 'J451640)$n?2\\\x10q\x1b' },
         '7.5': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: '1234567812345678' },
         '8.1': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
         '8.5': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
@@ -55,10 +55,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    function formatPrefixDisplay(prefix) {
+        const bytes = new TextEncoder().encode(prefix);
+        const hasBinary = Array.from(bytes).some((b) => b < 32 || b > 126);
+        if (!hasBinary) {
+            return prefix;
+        }
+        return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
     function updatePresetInfo(version) {
         const info = PRESET_INFO[version];
         if (info && presetInfo) {
-            presetInfo.innerHTML = '<strong>当前预设密钥：</strong> KEY=' + info.key + ' | IV=' + info.iv + ' | Prefix=' + info.prefix;
+            presetInfo.innerHTML = '<strong>当前预设密钥：</strong> KEY=' + info.key + ' | IV=' + info.iv + ' | Prefix=' + formatPrefixDisplay(info.prefix);
             presetInfo.style.display = 'block';
         }
     }

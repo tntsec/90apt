@@ -3,7 +3,7 @@ const FuncConfigCrypto = (() => {
         '7.1.7': {
             key: 'Jbga21autoj7ZAsF',
             iv: 'Jbga21autoj7ZAsF',
-            prefix: 'J451640)$n?2\x10q\x1b'
+            prefix: 'J451640)$n?2\\\x10q\x1b'
         },
         '7.5': {
             key: 'Jbga21autoj7ZAsF',
@@ -75,7 +75,10 @@ const FuncConfigCrypto = (() => {
         if (key.length !== 16 || iv.length !== 16) {
             throw new Error('KEY 和 IV 必须为 16 字节');
         }
-        if (prefix.length !== 16) {
+        const prefixBytes = typeof prefix === 'string'
+            ? new TextEncoder().encode(prefix)
+            : prefix;
+        if (!prefixBytes || prefixBytes.length !== 16) {
             throw new Error('数据填充（prefix）必须为 16 字节');
         }
 
@@ -83,7 +86,6 @@ const FuncConfigCrypto = (() => {
         const lenBytes = new ArrayBuffer(4);
         new DataView(lenBytes).setUint32(0, plainLen, true);
 
-        const prefixBytes = new TextEncoder().encode(prefix);
         const lenU8 = new Uint8Array(lenBytes);
 
         const toEncrypt = new Uint8Array(prefixBytes.length + lenU8.length + fileData.length);
