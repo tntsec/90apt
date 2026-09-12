@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="container">
+<div class="container" id="pageContainer">
     <h1>FuncConfig.dat 在线加解密</h1>
     <p class="subtitle">支持高德地图车机版 7.1.7 / 7.5 / 8.1 / 8.5 / 9.1 / 9.5</p>
 
@@ -90,7 +90,34 @@
             <div class="editor-search-results" id="editorSearchResults"></div>
         </div>
 
-        <textarea id="editorContent" class="editor-content" spellcheck="false"></textarea>
+        <div class="editor-body">
+            <textarea id="editorContent" class="editor-content" spellcheck="false"></textarea>
+
+            <aside class="translation-panel" id="translationPanel">
+                <div class="translation-header">
+                    <span class="translation-title">翻译对照</span>
+                    <span class="translation-badge" id="translationBadge">—</span>
+                </div>
+
+                <div class="translation-toolbar">
+                    <input type="text" id="translationFilter" class="translation-filter"
+                           placeholder="过滤键名或翻译…" spellcheck="false" autocomplete="off">
+                    <div class="translation-switch">
+                        <button type="button" class="translation-switch-btn active" data-dict="auto">自动</button>
+                        <button type="button" class="translation-switch-btn" data-dict="func">Func</button>
+                        <button type="button" class="translation-switch-btn" data-dict="ui">Ui</button>
+                    </div>
+                </div>
+
+                <div class="translation-list" id="translationList"></div>
+
+                <div class="translation-footer">
+                    <span id="translationFooter"></span>
+                    <button type="button" id="btn-translation-missing" class="translation-missing-btn"
+                            title="只显示词库里没有收录的键">仅未收录</button>
+                </div>
+            </aside>
+        </div>
     </div>
 
     <div class="footer">
@@ -99,7 +126,9 @@
 </div>
 
 <script src="js/vendor/crypto-js.min.js"></script>
+<script src="js/translations.js"></script>
 <script src="js/crypto.js"></script>
+<script src="js/translation-panel.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

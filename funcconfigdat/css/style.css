@@ -446,7 +446,9 @@ h1 {
 }
 
 .editor-content {
+    flex: 1 1 auto;
     width: 100%;
+    min-width: 0;
     min-height: 300px;
     max-height: 500px;
     padding: 16px;
@@ -461,6 +463,237 @@ h1 {
 
 .editor-content:focus {
     outline: none;
+}
+
+/* Editor body: 左编辑 / 右翻译对照 */
+.editor-body {
+    display: flex;
+    align-items: stretch;
+}
+
+/* 编辑器打开时放宽页面宽度，给右侧翻译面板腾出空间 */
+.container.wide {
+    max-width: 1180px;
+}
+
+/* Translation Panel */
+.translation-panel {
+    flex: 0 0 332px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-left: 1px solid var(--border);
+    background: #fbfdfe;
+}
+
+.translation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--input-bg);
+}
+
+.translation-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.translation-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: #065f46;
+    background: #d1fae5;
+    white-space: nowrap;
+}
+
+.translation-badge.uncertain {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.translation-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.translation-filter {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+.translation-filter:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.translation-switch {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+}
+
+.translation-switch-btn {
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.translation-switch-btn:hover {
+    color: var(--text);
+}
+
+.translation-switch-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.translation-list {
+    flex: 1 1 auto;
+    min-height: 200px;
+    max-height: 500px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.translation-row {
+    display: flex;
+    gap: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s;
+}
+
+.translation-row:hover {
+    background: var(--input-bg);
+}
+
+.translation-row.current {
+    background: #ecfdf5;
+    box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.translation-row.missing .translation-row-text {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.translation-row-line {
+    flex: 0 0 auto;
+    min-width: 40px;
+    text-align: right;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+}
+
+.translation-row-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.translation-row-key {
+    display: block;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 0.74rem;
+    line-height: 1.45;
+    color: #0f766e;
+    word-break: break-all;
+}
+
+.translation-row-text {
+    display: block;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    color: var(--text);
+    word-break: break-word;
+}
+
+.translation-empty,
+.translation-more {
+    padding: 12px 14px;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+}
+
+.translation-more {
+    text-align: center;
+    background: var(--input-bg);
+}
+
+.translation-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--input-bg);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.translation-footer b {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.translation-footer b.ok {
+    color: var(--primary);
+}
+
+.translation-footer b.warn {
+    color: var(--warning);
+}
+
+.translation-missing-btn {
+    flex: 0 0 auto;
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.translation-missing-btn:hover {
+    color: var(--text);
+}
+
+.translation-missing-btn.active {
+    background: var(--warning);
+    border-color: var(--warning);
+    color: white;
 }
 
 /* Status Message */
@@ -519,6 +752,28 @@ h1 {
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+    /* 窄屏放不下并排布局，翻译对照移到编辑器下方 */
+    .container.wide {
+        max-width: 720px;
+    }
+
+    .editor-body {
+        flex-direction: column;
+    }
+
+    .translation-panel {
+        flex: 1 1 auto;
+        border-left: none;
+        border-top: 1px solid var(--border);
+    }
+
+    .translation-list {
+        min-height: 140px;
+        max-height: 300px;
+    }
+}
+
 @media (max-width: 480px) {
     .container {
         padding: 16px 12px;

@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileTypeTip = document.getElementById('fileTypeTip');
     const statusMessage = document.getElementById('statusMessage');
     const presetInfo = document.getElementById('presetInfo');
+    const pageContainer = document.getElementById('pageContainer');
 
     let selectedFile = null;
     let editorMode = null;
@@ -106,6 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEncrypt.classList.remove('active');
         btnDecrypt.classList.remove('active');
         editorContainer.style.display = 'none';
+        if (pageContainer) pageContainer.classList.remove('wide');
+        if (typeof TranslationPanel !== 'undefined') TranslationPanel.reset();
         fileTypeTip.style.display = 'none';
 
         if (!file) return;
@@ -144,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const decryptedText = FuncConfigCrypto.decryptToJSON(fileData, config.key, config.iv);
 
             openEditor('decrypt', decryptedText, selectedFile.name, config);
-            showStatus('解密成功！可在编辑器中修改后保存。', 'success');
+            showStatus('解密成功！右侧已显示中文对照，可在编辑器中修改后保存。', 'success');
         } catch (err) {
             showStatus('解密失败：' + err.message, 'error');
         } finally {
@@ -596,6 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editorSearch.classList.contains('open') && editorSearchInput.value) {
             scheduleSearch(200);
         }
+        // 增删键之后翻译对照需要跟着更新（内部已做防抖）
+        if (typeof TranslationPanel !== 'undefined') {
+            TranslationPanel.scheduleRender(editorContent.value);
+        }
     });
 
     // Ctrl/Cmd+F 打开搜索；Esc 关闭搜索。编辑器未打开时不拦截浏览器原生查找
@@ -610,13 +617,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    /* ============================================================
+       翻译对照面板
+       解密后在编辑器外侧列出当前文件每个键对应的中文翻译。
+       词库来自 js/translations.js（1100+ 条），只在打开编辑器 / 内容变化时重建。
+       ============================================================ */
+
+    const CURSOR_SYNC_DELAY = 80;
+    let cursorSyncTimer = null;
+
+    // 编辑器里大多是缩进 JSON，逐字符数换行比 slice().split() 更省内存
+    function lineOfIndex(text, index) {
+        let line = 0;
+        const end = Math.min(index, text.length);
+        for (let i = 0; i < end; i++) {
+            if (text.charCodeAt(i) === 10) line++;
+        }
+        return line;
+    }
+
+    function syncPanelToCursor() {
+        if (editorContainer.style.display === 'none') return;
+        TranslationPanel.setCurrentLine(
+            lineOfIndex(editorContent.value, editorContent.selectionStart),
+            true
+        );
+    }
+
+    function scheduleCursorSync() {
+        clearTimeout(cursorSyncTimer);
+        cursorSyncTimer = setTimeout(syncPanelToCursor, CURSOR_SYNC_DELAY);
+    }
+
+    if (typeof TranslationPanel !== 'undefined') {
+        TranslationPanel.init({
+            // 点翻译列表某一行 → 在编辑器里选中对应的键并滚动过去
+            onJump: function (match) {
+                editorContent.setSelectionRange(match.start, match.end);
+                scrollEditorToLine(match.line);
+                editorContent.focus();
+            }
+        });
+    } else {
+        // 面板脚本缺失时直接隐藏，不影响加解密主流程
+        const panelEl = document.getElementById('translationPanel');
+        if (panelEl) panelEl.style.display = 'none';
+    }
+
+    editorContent.addEventListener('keyup', scheduleCursorSync);
+    editorContent.addEventListener('click', scheduleCursorSync);
+    editorContent.addEventListener('select', scheduleCursorSync);
+
     function openEditor(mode, content, fileName, config) {
         editorMode = mode;
         editorOriginalData = fileName;
         editorConfig = config;
         editorContent.value = content;
         editorContainer.style.display = 'block';
+        if (pageContainer) pageContainer.classList.add('wide');
         resetSearch();
+
+        if (typeof TranslationPanel !== 'undefined') TranslationPanel.render(content);
 
         const suffix = config && config.label ? '（' + config.label + '）' : '';
         editorTitle.textContent = mode === 'decrypt'
@@ -629,6 +690,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeEditor() {
         resetSearch();
         editorContainer.style.display = 'none';
+        if (pageContainer) pageContainer.classList.remove('wide');
+        if (typeof TranslationPanel !== 'undefined') TranslationPanel.reset();
         editorMode = null;
         editorOriginalData = null;
         editorConfig = null;
