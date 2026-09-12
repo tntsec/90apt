@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEditorDownload = document.getElementById('btn-editor-download');
     const btnEditorCancel = document.getElementById('btn-editor-cancel');
     const editorTitle = document.getElementById('editorTitle');
+    const editorSearch = document.getElementById('editorSearch');
+    const editorSearchInput = document.getElementById('editorSearchInput');
+    const editorSearchCount = document.getElementById('editorSearchCount');
+    const editorSearchResults = document.getElementById('editorSearchResults');
+    const btnEditorSearch = document.getElementById('btn-editor-search');
+    const btnSearchPrev = document.getElementById('btn-search-prev');
+    const btnSearchNext = document.getElementById('btn-search-next');
+    const btnSearchCase = document.getElementById('btn-search-case');
+    const btnSearchRegex = document.getElementById('btn-search-regex');
+    const btnSearchClose = document.getElementById('btn-search-close');
     const fileTypeTip = document.getElementById('fileTypeTip');
     const statusMessage = document.getElementById('statusMessage');
     const presetInfo = document.getElementById('presetInfo');
@@ -20,15 +30,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedFile = null;
     let editorMode = null;
     let editorOriginalData = null;
+    // 打开编辑器时锁定的密钥配置，避免中途切换版本导致「用 A 版解密、用 B 版加密」
+    let editorConfig = null;
 
-    const PRESET_INFO = {
-        '7.1.7': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: 'J451640)$n?2\\\x10q\x1b' },
-        '7.5': { key: 'Jbga21autoj7ZAsF', iv: 'Jbga21autoj7ZAsF', prefix: '1234567812345678' },
-        '8.1': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
-        '8.5': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
-        '9.1': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' },
-        '9.5': { key: 'Yqwr31autou4PbNM', iv: '1234567812345678', prefix: '9zxc46abc7o28l4t' }
-    };
+    // 加解密库可用性检查：本地加载失败时给出明确提示，而不是加密时报 undefined。
+    // 注意 CryptoJS.AES 是对象而非函数，这里要校验其 encrypt/decrypt 方法。
+    if (typeof CryptoJS === 'undefined' || !CryptoJS.AES || typeof CryptoJS.AES.encrypt !== 'function') {
+        showStatus('加解密库加载失败，请确认 js/vendor/crypto-js.min.js 文件存在', 'error');
+        btnDecrypt.disabled = true;
+        btnEncrypt.disabled = true;
+        return;
+    }
 
     // Version radio change handler
     document.querySelectorAll('input[name="preset_mode"]').forEach(radio => {
@@ -51,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatePresetInfo(this.value);
             } else {
                 presetInfo.style.display = 'none';
+                showStatus('自定义模式：KEY、IV、Prefix 三项均需填满 16 字节（注意中文一字占 3 字节）', 'warning');
             }
         });
     });
@@ -65,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePresetInfo(version) {
-        const info = PRESET_INFO[version];
+        const info = FuncConfigCrypto.getPreset(version);
         if (info && presetInfo) {
             presetInfo.innerHTML = '<strong>当前预设密钥：</strong> KEY=' + info.key + ' | IV=' + info.iv + ' | Prefix=' + formatPrefixDisplay(info.prefix);
             presetInfo.style.display = 'block';
@@ -76,6 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultRadio = document.querySelector('input[name="preset_mode"]:checked');
     if (defaultRadio) {
         updatePresetInfo(defaultRadio.value);
+    }
+
+    function getExtension(name) {
+        const idx = name.lastIndexOf('.');
+        return idx === -1 ? '' : name.slice(idx + 1).toLowerCase();
     }
 
     // File input change handler
@@ -98,16 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (fname.endsWith('.dat')) {
+        const ext = getExtension(fname);
+
+        if (ext === 'dat') {
             btnDecrypt.classList.add('active');
-            updateTip('上传 FuncConfig.dat，解密为可编辑内容。');
-        } else if (fname.endsWith('.txt')) {
             btnEncrypt.classList.add('active');
-            updateTip('上传明文 txt，加密为 .dat 文件。');
-        } else if (fname.endsWith('.json')) {
+            updateTip('上传 FuncConfig.dat：点「解密文件」查看内容，或点「加密文件」编辑后重新加密。');
+        } else if (ext === 'txt') {
             btnEncrypt.classList.add('active');
-            btnDecrypt.classList.add('active');
-            updateTip('JSON 文件：可加密为 .dat 或解密为明文 JSON。');
+            updateTip('上传明文 txt，加密为 .dat 文件（按 UTF-8 读取）。');
+        } else if (ext === 'json') {
+            btnEncrypt.classList.add('active');
+            updateTip('上传明文 JSON，加密为 .dat 文件。');
         }
     });
 
@@ -123,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileData = new Uint8Array(await selectedFile.arrayBuffer());
             const decryptedText = FuncConfigCrypto.decryptToJSON(fileData, config.key, config.iv);
 
-            openEditor('decrypt', decryptedText, selectedFile.name);
+            openEditor('decrypt', decryptedText, selectedFile.name, config);
             showStatus('解密成功！可在编辑器中修改后保存。', 'success');
         } catch (err) {
             showStatus('解密失败：' + err.message, 'error');
@@ -141,30 +161,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setButtonsDisabled(true);
         try {
-            let content;
-            const ext = selectedFile.name.split('.').pop().toLowerCase();
+            const ext = getExtension(selectedFile.name);
 
+            // .dat 走「先解密再进入编辑器」的重新加密流程
             if (ext === 'dat') {
                 const fileData = new Uint8Array(await selectedFile.arrayBuffer());
                 const decryptedText = FuncConfigCrypto.decryptToJSON(fileData, config.key, config.iv);
-                openEditor('encrypt', decryptedText, selectedFile.name);
-                setButtonsDisabled(false);
+                openEditor('encrypt', decryptedText, selectedFile.name, config);
+                showStatus('已解密，可在编辑器中修改后保存。', 'success');
                 return;
-            } else {
-                content = await selectedFile.text();
             }
 
-            let jsonContent = content;
-            try {
-                JSON.parse(content);
-                jsonContent = content;
-            } catch (e) {
-                if (ext === 'json') {
+            const content = await selectedFile.text();
+
+            if (ext === 'json') {
+                try {
+                    JSON.parse(content);
+                } catch (e) {
                     throw new Error('JSON 格式不正确');
                 }
             }
 
-            const encrypted = FuncConfigCrypto.encryptFromJSON(jsonContent, config.key, config.iv, config.prefix);
+            const encrypted = FuncConfigCrypto.encryptFromJSON(content, config.key, config.iv, config.prefix);
             const baseName = selectedFile.name.replace(/\.[^/.]+$/, '');
             downloadFile(encrypted, baseName + '.dat');
             showStatus('加密成功！', 'success');
@@ -178,34 +196,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Editor format button
     btnEditorFormat.addEventListener('click', () => {
         const text = editorContent.value;
+        if (!text.trim()) { showStatus('内容为空', 'error'); return; }
         try {
-            const jsonFormatted = formatJSON(text);
-            editorContent.value = jsonFormatted;
+            editorContent.value = JSON.stringify(JSON.parse(text), null, 2);
             showStatus('JSON 已格式化', 'success');
+            // 格式化改变了缩进与行号，匹配结果需要重算（不跳转，避免打断阅读）
+            if (editorSearch.classList.contains('open') && editorSearchInput.value) {
+                clearTimeout(searchTimer);
+                runSearch(true, false);
+            }
         } catch (err) {
-            showStatus('格式化失败：' + err.message, 'error');
+            showStatus('格式化失败：内容不是合法 JSON', 'error');
         }
     });
 
     // Editor download button
     btnEditorDownload.addEventListener('click', () => {
-        const config = getSelectedConfig();
+        const config = editorConfig || getSelectedConfig();
         if (!config) return;
 
         const text = editorContent.value;
+        if (!text.trim()) { showStatus('内容为空，无法加密', 'error'); return; }
 
+        // 以 { 或 [ 开头的疑似 JSON 若解析失败，说明是写错了，直接拦下；
+        // 其余纯文本（含解密出来的非 JSON 内容）允许原样加密，避免解密后无法保存。
+        let warning = '';
         try {
             JSON.parse(text);
+        } catch (e) {
+            if (/^\s*[\[{]/.test(text)) {
+                showStatus('JSON 格式不正确，请检查后再保存', 'error');
+                return;
+            }
+            warning = '（内容非 JSON，已按纯文本加密）';
+        }
+
+        try {
             const encrypted = FuncConfigCrypto.encryptFromJSON(text, config.key, config.iv, config.prefix);
             const baseName = editorOriginalData ? editorOriginalData.replace(/\.[^/.]+$/, '') : 'FuncConfig';
             downloadFile(encrypted, baseName + '.dat');
-            showStatus('加密并下载成功！', 'success');
+            showStatus('加密并下载成功！' + warning, 'success');
         } catch (err) {
-            if (err.message.includes('JSON')) {
-                showStatus('JSON 格式不正确，请检查', 'error');
-            } else {
-                showStatus('加密失败：' + err.message, 'error');
-            }
+            showStatus('加密失败：' + err.message, 'error');
         }
     });
 
@@ -214,59 +246,427 @@ document.addEventListener('DOMContentLoaded', () => {
         closeEditor();
     });
 
-    function openEditor(mode, content, fileName) {
+    /* ============================================================
+       编辑器搜索
+       在 textarea 里无法做真正的语法高亮，所以采用「选中 + 定位 + 结果列表」
+       的组合：回车逐个跳转，结果列表给出所在行与上下文，点列表项直接进入编辑。
+       ============================================================ */
+
+    const MAX_MATCHES = 5000;      // 上限，避免超大文件 + 宽泛正则把页面卡死
+    const MAX_RESULT_ROWS = 300;   // 结果列表最多渲染多少行
+
+    let searchMatches = [];
+    let searchIndex = -1;
+    let searchAppliedQuery = null; // 已应用到当前匹配结果的查询串
+    let searchInvalid = false;     // 上一次搜索是否因为正则不合法而失败
+    let searchCaseSensitive = false;
+    let searchUseRegex = false;
+    let searchTimer = null;
+
+    function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // 预先记录每个换行符的位置，用二分查找把「字符下标」换算成「行号」
+    function buildNewlineIndex(text) {
+        const newlines = [];
+        for (let i = 0; i < text.length; i++) {
+            if (text.charCodeAt(i) === 10) newlines.push(i);
+        }
+        return newlines;
+    }
+
+    function locateIndex(newlines, index) {
+        // 返回 0 基的行号，以及该行的起止下标
+        let lo = 0;
+        let hi = newlines.length;
+        while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (newlines[mid] < index) lo = mid + 1;
+            else hi = mid;
+        }
+        return {
+            line: lo,                                                    // 0 基
+            lineStart: lo === 0 ? 0 : newlines[lo - 1] + 1,
+            lineEnd: lo < newlines.length ? newlines[lo] : Infinity      // 无换行时截到文末
+        };
+    }
+
+    function collectMatches(text, query) {
+        let re;
+        try {
+            re = new RegExp(
+                searchUseRegex ? query : escapeRegExp(query),
+                'g' + (searchCaseSensitive ? '' : 'i') + (searchUseRegex ? 'm' : '')
+            );
+        } catch (err) {
+            return { matches: [], invalid: true };
+        }
+
+        const newlines = buildNewlineIndex(text);
+        const matches = [];
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            const where = locateIndex(newlines, m.index);
+            matches.push({
+                start: m.index,
+                end: m.index + m[0].length,
+                line: where.line,
+                lineStart: where.lineStart,
+                lineEnd: where.lineEnd
+            });
+            if (m[0].length === 0) re.lastIndex++;         // 零宽匹配，手动前进防止死循环
+            if (matches.length >= MAX_MATCHES) break;
+        }
+        return { matches, invalid: false };
+    }
+
+    function updateSearchCount() {
+        if (!editorSearchInput.value) {
+            editorSearchCount.textContent = '';
+            editorSearchCount.classList.remove('no-match');
+            return;
+        }
+        if (searchInvalid) {
+            editorSearchCount.textContent = '语法错误';
+            editorSearchCount.classList.add('no-match');
+            return;
+        }
+        if (!searchMatches.length) {
+            editorSearchCount.textContent = '无匹配';
+            editorSearchCount.classList.add('no-match');
+            return;
+        }
+        editorSearchCount.classList.remove('no-match');
+        editorSearchCount.textContent = (searchIndex + 1) + '/' + searchMatches.length;
+    }
+
+    // 把 textarea 滚动到指定行（1/3 高度处），不依赖 focus 的自动滚动
+    function scrollEditorToLine(line) {
+        const style = window.getComputedStyle(editorContent);
+        const fontSize = parseFloat(style.fontSize) || 14;
+        let lineHeight = parseFloat(style.lineHeight);
+        if (!lineHeight || Number.isNaN(lineHeight)) lineHeight = fontSize * 1.5;
+        else if (lineHeight < 4) lineHeight *= fontSize;   // line-height 为无单位倍数时
+
+        const paddingTop = parseFloat(style.paddingTop) || 0;
+        const target = line * lineHeight + paddingTop - (editorContent.clientHeight / 3);
+        editorContent.scrollTop = Math.max(0, target);
+    }
+
+    function renderSearchResults() {
+        const query = editorSearchInput.value;
+        editorSearchResults.innerHTML = '';
+
+        if (!query) {
+            editorSearchResults.classList.remove('open');
+            return;
+        }
+
+        editorSearchResults.classList.add('open');
+
+        if (!searchMatches.length) {
+            const empty = document.createElement('div');
+            empty.className = 'editor-search-empty';
+            empty.textContent = searchInvalid ? '正则表达式不合法' : '没有找到匹配内容';
+            editorSearchResults.appendChild(empty);
+            return;
+        }
+
+        const text = editorContent.value;
+        const rows = Math.min(searchMatches.length, MAX_RESULT_ROWS);
+
+        for (let i = 0; i < rows; i++) {
+            const match = searchMatches[i];
+            const lineEnd = Math.min(match.lineEnd, text.length);
+            const lineText = text.slice(match.lineStart, lineEnd);
+            const relStart = match.start - match.lineStart;
+            const relEnd = Math.min(match.end, lineEnd) - match.lineStart;
+
+            const row = document.createElement('div');
+            row.className = 'search-result' + (i === searchIndex ? ' current' : '');
+            row.dataset.index = String(i);
+            row.title = lineText.trim();
+
+            const num = document.createElement('span');
+            num.className = 'search-result-line';
+            num.textContent = String(match.line + 1);
+
+            const body = document.createElement('span');
+            body.className = 'search-result-text';
+
+            const from = Math.max(0, relStart - 32);
+            const to = Math.min(lineText.length, relEnd + 32);
+            if (from > 0) body.appendChild(document.createTextNode('…'));
+            body.appendChild(document.createTextNode(lineText.slice(from, relStart)));
+
+            const mark = document.createElement('span');
+            mark.className = 'search-result-mark';
+            mark.textContent = lineText.slice(relStart, relEnd);
+            body.appendChild(mark);
+
+            body.appendChild(document.createTextNode(lineText.slice(relEnd, to)));
+            if (to < lineText.length) body.appendChild(document.createTextNode('…'));
+
+            row.appendChild(num);
+            row.appendChild(body);
+            editorSearchResults.appendChild(row);
+        }
+
+        if (searchMatches.length > rows) {
+            const more = document.createElement('div');
+            more.className = 'search-result-more';
+            more.textContent = '仅列出前 ' + rows + ' 条，共 ' + searchMatches.length + ' 条匹配（回车可逐个跳转）';
+            editorSearchResults.appendChild(more);
+        }
+    }
+
+    function markCurrentResult() {
+        const rows = editorSearchResults.querySelectorAll('.search-result');
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].classList.toggle('current', i === searchIndex);
+        }
+
+        const current = editorSearchResults.querySelector('.search-result.current');
+        if (!current) return;
+        // 让当前项在结果列表内保持可见（不触发整页滚动）
+        const offset = current.offsetTop - editorSearchResults.offsetTop;
+        if (offset < editorSearchResults.scrollTop) {
+            editorSearchResults.scrollTop = offset;
+        } else if (offset + current.offsetHeight >
+                   editorSearchResults.scrollTop + editorSearchResults.clientHeight) {
+            editorSearchResults.scrollTop = offset + current.offsetHeight - editorSearchResults.clientHeight;
+        }
+    }
+
+    // focusEditor 为 true 时把光标交给 textarea，便于直接修改；否则保持在搜索框里连续回车跳转
+    function goToMatch(target, focusEditor) {
+        if (!searchMatches.length) {
+            searchIndex = -1;
+            updateSearchCount();
+            return;
+        }
+
+        const total = searchMatches.length;
+        searchIndex = ((target % total) + total) % total;
+
+        const match = searchMatches[searchIndex];
+        editorContent.setSelectionRange(match.start, match.end);
+        scrollEditorToLine(match.line);
+        if (focusEditor) editorContent.focus();
+
+        updateSearchCount();
+        markCurrentResult();
+    }
+
+    function runSearch(resetIndex, jump) {
+        const query = editorSearchInput.value;
+
+        if (!query) {
+            searchMatches = [];
+            searchIndex = -1;
+            searchAppliedQuery = null;
+            searchInvalid = false;
+            editorSearchInput.classList.remove('invalid');
+            updateSearchCount();
+            renderSearchResults();
+            return;
+        }
+
+        const result = collectMatches(editorContent.value, query);
+        searchInvalid = result.invalid;
+        editorSearchInput.classList.toggle('invalid', result.invalid);
+        searchAppliedQuery = result.invalid ? null : query;
+        searchMatches = result.matches;
+
+        if (resetIndex || searchIndex < 0) searchIndex = 0;
+        if (searchIndex >= searchMatches.length) searchIndex = searchMatches.length - 1;
+
+        const jumpTarget = searchIndex < 0 ? 0 : searchIndex;
+        renderSearchResults();
+
+        if (jump && searchMatches.length) {
+            goToMatch(jumpTarget, false);
+        } else {
+            if (!searchMatches.length) searchIndex = -1;
+            updateSearchCount();
+            markCurrentResult();
+        }
+    }
+
+    function scheduleSearch(delay) {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => runSearch(false, false), delay);
+    }
+
+    function toggleSearch(open) {
+        const willOpen = typeof open === 'boolean' ? open : !editorSearch.classList.contains('open');
+        editorSearch.classList.toggle('open', willOpen);
+        btnEditorSearch.classList.toggle('active', willOpen);
+
+        if (willOpen) {
+            editorSearchInput.focus();
+            editorSearchInput.select();
+            if (editorSearchInput.value) runSearch(true, true);
+            return;
+        }
+
+        clearTimeout(searchTimer);
+        searchMatches = [];
+        searchIndex = -1;
+        searchAppliedQuery = null;
+        searchInvalid = false;
+        editorSearchResults.innerHTML = '';
+        editorSearchResults.classList.remove('open');
+        if (editorContainer.style.display !== 'none') editorContent.focus();
+    }
+
+    function resetSearch() {
+        clearTimeout(searchTimer);
+        editorSearchInput.value = '';
+        editorSearchInput.classList.remove('invalid');
+        editorSearchCount.textContent = '';
+        editorSearchCount.classList.remove('no-match');
+        editorSearchResults.innerHTML = '';
+        editorSearchResults.classList.remove('open');
+        editorSearch.classList.remove('open');
+        btnEditorSearch.classList.remove('active');
+        searchMatches = [];
+        searchIndex = -1;
+        searchAppliedQuery = null;
+        searchInvalid = false;
+        searchCaseSensitive = false;
+        searchUseRegex = false;
+        btnSearchCase.classList.remove('active');
+        btnSearchRegex.classList.remove('active');
+    }
+
+    btnEditorSearch.addEventListener('click', () => toggleSearch());
+    btnSearchClose.addEventListener('click', () => toggleSearch(false));
+
+    btnSearchPrev.addEventListener('click', () => {
+        editorSearchInput.focus();
+        goToMatch(searchIndex - 1, false);
+    });
+
+    btnSearchNext.addEventListener('click', () => {
+        editorSearchInput.focus();
+        goToMatch(searchIndex + 1, false);
+    });
+
+    btnSearchCase.addEventListener('click', () => {
+        searchCaseSensitive = !searchCaseSensitive;
+        btnSearchCase.classList.toggle('active', searchCaseSensitive);
+        editorSearchInput.focus();
+        runSearch(true, true);
+    });
+
+    btnSearchRegex.addEventListener('click', () => {
+        searchUseRegex = !searchUseRegex;
+        btnSearchRegex.classList.toggle('active', searchUseRegex);
+        editorSearchInput.focus();
+        runSearch(true, true);
+    });
+
+    editorSearchInput.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => runSearch(true, true), 120);
+    });
+
+    editorSearchInput.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        // 防抖还没触发时先按最新查询算一次，避免跳到上一次的结果
+        if (editorSearchInput.value !== searchAppliedQuery) {
+            clearTimeout(searchTimer);
+            runSearch(true, true);
+            return;
+        }
+        goToMatch(searchIndex + (e.shiftKey ? -1 : 1), false);
+    });
+
+    editorSearchResults.addEventListener('click', (e) => {
+        const row = e.target && e.target.closest ? e.target.closest('.search-result') : null;
+        if (!row) return;
+        goToMatch(Number(row.dataset.index), true);
+    });
+
+    // 编辑内容后只刷新匹配与列表，不动光标、不滚动，避免打断正在进行的编辑
+    editorContent.addEventListener('input', () => {
+        if (editorSearch.classList.contains('open') && editorSearchInput.value) {
+            scheduleSearch(200);
+        }
+    });
+
+    // Ctrl/Cmd+F 打开搜索；Esc 关闭搜索。编辑器未打开时不拦截浏览器原生查找
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+            if (editorContainer.style.display === 'none') return;
+            e.preventDefault();
+            toggleSearch(true);
+        } else if (e.key === 'Escape' && editorSearch.classList.contains('open')) {
+            e.preventDefault();
+            toggleSearch(false);
+        }
+    });
+
+    function openEditor(mode, content, fileName, config) {
         editorMode = mode;
         editorOriginalData = fileName;
+        editorConfig = config;
         editorContent.value = content;
         editorContainer.style.display = 'block';
+        resetSearch();
 
-        if (mode === 'decrypt') {
-            editorTitle.textContent = '解密结果 - 可编辑 JSON';
-        } else {
-            editorTitle.textContent = '编辑并加密 - ' + fileName;
-        }
+        const suffix = config && config.label ? '（' + config.label + '）' : '';
+        editorTitle.textContent = mode === 'decrypt'
+            ? '解密结果 - 可编辑 JSON' + suffix
+            : '编辑并加密 - ' + fileName + suffix;
 
         editorContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
     function closeEditor() {
+        resetSearch();
         editorContainer.style.display = 'none';
         editorMode = null;
         editorOriginalData = null;
+        editorConfig = null;
         editorContent.value = '';
     }
 
-    function formatJSON(text) {
-        try {
-            const obj = JSON.parse(text);
-            return JSON.stringify(obj, null, 2);
-        } catch (e) {
-            return text;
+    function validateCustomField(input, label) {
+        const bytes = FuncConfigCrypto.utf8ByteLength(input.value);
+        if (bytes !== 16) {
+            showStatus(label + ' 必须为 16 字节（当前 ' + bytes + ' 字节）', 'error');
+            input.focus();
+            return false;
         }
+        return true;
     }
 
     function getSelectedConfig() {
-        const mode = document.querySelector('input[name="preset_mode"]:checked').value;
+        const checked = document.querySelector('input[name="preset_mode"]:checked');
+        if (!checked) {
+            showStatus('请先选择版本', 'error');
+            return null;
+        }
+
+        const mode = checked.value;
 
         if (mode === 'custom') {
-            const key = keyInput.value;
-            const iv = ivInput.value;
-            const prefix = prefixInput.value;
-
-            if (key.length !== 16 || iv.length !== 16) {
-                showStatus('自定义模式下 KEY 和 IV 必须为 16 字节', 'error');
-                return null;
-            }
-
-            return { key, iv, prefix: prefix || '1234567812345678' };
-        } else {
-            const info = PRESET_INFO[mode];
-            if (!info) {
-                showStatus('未知版本：' + mode, 'error');
-                return null;
-            }
-            return info;
+            if (!validateCustomField(keyInput, 'KEY')) return null;
+            if (!validateCustomField(ivInput, 'IV')) return null;
+            if (!validateCustomField(prefixInput, '数据填充 Prefix')) return null;
+            return { key: keyInput.value, iv: ivInput.value, prefix: prefixInput.value, label: '自定义' };
         }
+
+        const info = FuncConfigCrypto.getPreset(mode);
+        if (!info) {
+            showStatus('未知版本：' + mode, 'error');
+            return null;
+        }
+        return { key: info.key, iv: info.iv, prefix: info.prefix, label: mode };
     }
 
     function setButtonsDisabled(disabled) {
@@ -280,6 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedFile = null;
         btnEncrypt.classList.remove('active');
         btnDecrypt.classList.remove('active');
+        fileTypeTip.style.display = 'none';
     }
 
     function updateTip(text) {

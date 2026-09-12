@@ -69,11 +69,27 @@
         <div class="editor-header">
             <h3 id="editorTitle">编辑器</h3>
             <div class="editor-actions">
+                <button type="button" id="btn-editor-search" class="editor-btn editor-btn-secondary">搜索</button>
                 <button type="button" id="btn-editor-format" class="editor-btn editor-btn-secondary">格式化 JSON</button>
                 <button type="button" id="btn-editor-download" class="editor-btn editor-btn-save">加密并下载</button>
                 <button type="button" id="btn-editor-cancel" class="editor-btn editor-btn-cancel">取消</button>
             </div>
         </div>
+
+        <div class="editor-search" id="editorSearch">
+            <div class="editor-search-bar">
+                <input type="text" id="editorSearchInput" class="editor-search-input"
+                       placeholder="搜索键名或值（回车跳到下一个）" spellcheck="false" autocomplete="off">
+                <span class="editor-search-count" id="editorSearchCount"></span>
+                <button type="button" class="editor-search-icon" id="btn-search-prev" title="上一个（Shift+回车）" aria-label="上一个">↑</button>
+                <button type="button" class="editor-search-icon" id="btn-search-next" title="下一个（回车）" aria-label="下一个">↓</button>
+                <button type="button" class="editor-search-icon" id="btn-search-case" title="区分大小写">Aa</button>
+                <button type="button" class="editor-search-icon" id="btn-search-regex" title="使用正则表达式（^ $ 按行匹配）">.*</button>
+                <button type="button" class="editor-search-icon" id="btn-search-close" title="关闭搜索（Esc）" aria-label="关闭">✕</button>
+            </div>
+            <div class="editor-search-results" id="editorSearchResults"></div>
+        </div>
+
         <textarea id="editorContent" class="editor-content" spellcheck="false"></textarea>
     </div>
 
@@ -82,7 +98,7 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="js/vendor/crypto-js.min.js"></script>
 <script src="js/crypto.js"></script>
 <script src="js/app.js"></script>
 </body>
