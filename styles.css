@@ -278,6 +278,50 @@ body {
     line-height: 1.8;
 }
 
+/* 免费 DNS 高亮胶囊 */
+.hero-dns {
+    display: inline-block;
+    margin: 0.35rem 0 0.1rem;
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.7;
+}
+
+.hero-dns-ip {
+    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #7dd3fc;
+    letter-spacing: 0.03em;
+    user-select: all;
+}
+
+/* 免费宣言高亮块 */
+.hero-slogan {
+    display: block;
+    width: fit-content;
+    margin: 1.1rem auto 0;
+    padding: 0.7rem 1.6rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.16), rgba(245, 87, 108, 0.16));
+    border: 1px solid rgba(245, 87, 108, 0.45);
+    box-shadow: 0 10px 30px rgba(245, 87, 108, 0.18);
+}
+
+.hero-slogan-line {
+    display: block;
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.9;
+    letter-spacing: 0.02em;
+}
+
 .hero-buttons {
     display: flex;
     gap: 1.5rem;
@@ -1076,6 +1120,24 @@ body {
         font-size: 1rem;
     }
 
+    .hero-dns {
+        padding: 0.35rem 0.85rem;
+        font-size: 0.92rem;
+    }
+
+    .hero-dns-ip {
+        font-size: 0.96rem;
+    }
+
+    .hero-slogan {
+        padding: 0.6rem 1.1rem;
+    }
+
+    .hero-slogan-line {
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+
     .hero-buttons {
         flex-direction: column;
         width: 100%;
@@ -1108,5 +1170,393 @@ body {
 
     .contact-visual {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ===== 车机厂家识别（教程中心内嵌） ===== */
+.guide-routes {
+    max-width: 1200px;
+    margin: 0 auto 4rem;
+}
+
+.guide-head {
+    margin-bottom: 2.2rem;
+}
+
+.guide-routes .guide-head {
+    text-align: center;
+}
+
+.guide-tag {
+    display: inline-block;
+    padding: 0.3rem 0.85rem;
+    margin-bottom: 0.9rem;
+    border-radius: 999px;
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--accent-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.guide-head h3 {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 800;
+    margin-bottom: 0.7rem;
+}
+
+.guide-head p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+.guide-routes .guide-head p {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.guide-route-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.6rem;
+}
+
+.guide-route {
+    position: relative;
+    padding: 2rem 1.9rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    transition: all var(--transition-speed) ease;
+}
+
+.guide-route:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.guide-route-easy {
+    border-color: rgba(67, 233, 123, 0.28);
+}
+
+.guide-route-hard {
+    border-color: rgba(251, 191, 36, 0.28);
+}
+
+.guide-route-tag {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.6rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.guide-route-easy .guide-route-tag {
+    background: rgba(67, 233, 123, 0.16);
+    color: #6ee7a8;
+}
+
+.guide-route-hard .guide-route-tag {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fbbf24;
+}
+
+.guide-route h4 {
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+    padding-right: 6rem;
+}
+
+.guide-route-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.guide-route ul {
+    list-style: none;
+}
+
+.guide-route li {
+    position: relative;
+    padding: 0.55rem 0 0.55rem 1.5rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.guide-route li:last-child {
+    border-bottom: none;
+}
+
+.guide-route li::before {
+    content: '▸';
+    position: absolute;
+    left: 0.35rem;
+    color: var(--accent-color);
+}
+
+.guide-route li b {
+    color: var(--text-primary);
+}
+
+/* ===== 华阳 / 安波福 全流程（核心功能内嵌） ===== */
+.guide-flows {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 3.5rem;
+}
+
+.guide-flow .guide-head {
+    margin-bottom: 2rem;
+}
+
+.guide-flow .guide-head p {
+    max-width: 760px;
+}
+
+.guide-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.guide-timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--primary-gradient);
+    opacity: 0.5;
+}
+
+.guide-step {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.guide-step:last-child {
+    padding-bottom: 0;
+}
+
+.guide-step::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+}
+
+.guide-step h4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.guide-step-no {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 6px;
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--accent-color);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.guide-step p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.guide-step p + p {
+    margin-top: 0.5rem;
+}
+
+.guide-step ul {
+    list-style: none;
+    margin-top: 0.6rem;
+}
+
+.guide-step ul li {
+    position: relative;
+    padding: 0.25rem 0 0.25rem 1.1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.guide-step ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0.25rem;
+    color: var(--accent-color);
+    font-weight: 800;
+}
+
+.guide-step ul li b {
+    color: var(--text-primary);
+}
+
+.guide-mono {
+    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #c7d2fe;
+}
+
+.guide-pwd {
+    display: inline-block;
+    padding: 0.1rem 0.6rem;
+    margin: 0.15rem 0;
+    border-radius: 6px;
+    background: rgba(67, 233, 123, 0.12);
+    border: 1px solid rgba(67, 233, 123, 0.35);
+    color: #6ee7a8;
+    font-size: 0.9rem;
+    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* 密码芯片分组：让多个密码之间有固定间距，且窄屏能自动换行 */
+.guide-pwd-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    vertical-align: middle;
+}
+
+.guide-pwd-group .guide-pwd {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.guide-code {
+    margin: 0.9rem 0 0;
+    padding: 0.9rem 1.1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #c9d6ee;
+    white-space: pre;
+}
+
+.guide-code-c {
+    color: #94a3b8;
+}
+
+/* ===== 网盘资源与交流（教程中心内嵌） ===== */
+.guide-res {
+    max-width: 1200px;
+    margin: 4rem auto 0;
+}
+
+.guide-res .guide-head {
+    text-align: center;
+}
+
+.guide-res .guide-head p {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.guide-res-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.6rem;
+}
+
+.guide-res-card {
+    padding: 1.8rem 1.9rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    transition: all var(--transition-speed) ease;
+}
+
+.guide-res-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.guide-res-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.9rem;
+}
+
+.guide-res-card ul {
+    list-style: none;
+}
+
+.guide-res-card li {
+    padding: 0.55rem 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    word-break: break-all;
+}
+
+.guide-res-card li:last-child {
+    border-bottom: none;
+}
+
+.guide-res-card a {
+    color: #a5b4fc;
+    text-decoration: none;
+}
+
+.guide-res-card a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .guide-route {
+        padding: 1.6rem 1.3rem;
+    }
+
+    .guide-res-card {
+        padding: 1.5rem 1.3rem;
+    }
+
+    .guide-route-tag {
+        top: 1.1rem;
+        right: 1.1rem;
+    }
+
+    .guide-head h3 {
+        font-size: 1.3rem;
+    }
+
+    .guide-timeline {
+        padding-left: 1.5rem;
+    }
+
+    .guide-step::before {
+        left: -1.5rem;
     }
 }
