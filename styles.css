@@ -306,26 +306,15 @@ body {
                 box-shadow var(--transition-speed), transform var(--transition-speed);
 }
 
-/* 点击可跳转到该 DNS 服务器 */
-.hero-dns::after {
-    content: '\2197\FE0E';
-    margin-left: 0.45rem;
-    font-size: 0.9em;
-    color: #7dd3fc;
-    transition: transform var(--transition-speed);
-}
-
+/* 点击可跳转到该 DNS 服务器。
+   原先胶囊末尾带一个 ↗ 外跳箭头（.hero-dns::after 的 content: '\2197\FE0E'），
+   并在悬停时向右上飞出 2px，2026-10-13 应要求去掉箭头，相关规则一并移除。 */
 .hero-dns:hover,
 .hero-dns:focus-visible {
     background: rgba(56, 189, 248, 0.24);
     border-color: rgba(56, 189, 248, 0.8);
     box-shadow: 0 6px 22px rgba(56, 189, 248, 0.28);
     transform: translateY(-2px);
-}
-
-.hero-dns:hover::after,
-.hero-dns:focus-visible::after {
-    transform: translate(2px, -2px);
 }
 
 .hero-dns-ip {
