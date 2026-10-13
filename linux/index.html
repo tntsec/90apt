@@ -1,11 +1,312 @@
-防骗警告！<br>本DNS为免费DNS，由<a href="http://gwm.90apt.com">90APT.com提供搭建和教程</a>，点击可查看详细教程，由于免费行为触动车圈知名骗子哈弗益达利益，群号和DNS持续被哈弗益达举报，因此DNS失效时间不确定，90apt从未授权哈弗益达使用本站的DNS、技术原理和方法，收费均为骗子，谨防上当。<br>
-90apt车友交流QQ群468902455<br>
-DNS使用方法，安波福为例<br>
-0) 安波福安装调试模式，车机使用移动数据，打开“智能手册”正确选择，更新一次数据；然后关闭移动网络，并给予智能手册存储权限<br>
-1) 准备一个wifi或手机热点，提供一个稳定的WIFI网络<br>
-2) 准备第二部手机，第二部需要连接上面的wifi并且能够同时共享热点<br>
-3) 第二部手机的wifi修改DNS域名为免费DNS的IP<br>
-4) 车辆，车辆连接第二部手机的热点，点击智能手册，即可安装工装工程模式使用ADB<br>
-CMD简单测试<br>
-nslookup dzsms.gwm.com.cn 你的IP地址<br>
-如果dzsms.gwm.com.cn返回本服务器地址则为正常，超时代表挂了<br>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="90APT 免费 DNS 服务说明：安波福车机工程模式 DNS 使用方法与自检教程，谨防收费骗子。">
+<title>90APT 免费 DNS · 使用说明与防骗提示</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --bg-grad-1:#eef2ff;
+    --bg-grad-2:#f7f9fc;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --ink-3:#64748b;
+    --line:#e6eaf2;
+    --brand:#2563eb;
+    --brand-2:#1d4ed8;
+    --brand-soft:#eff4ff;
+    --warn:#b45309;
+    --warn-soft:#fff8ec;
+    --warn-line:#f6dfb4;
+    --danger:#c0392b;
+    --ok:#0f766e;
+    --ok-soft:#effaf7;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 10px 30px -12px rgba(16,24,40,.14);
+    --shadow-sm:0 1px 2px rgba(16,24,40,.05),0 4px 14px -8px rgba(16,24,40,.12);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b1220;
+      --bg-grad-1:#0e1729;
+      --bg-grad-2:#0b1220;
+      --card:#121c2e;
+      --ink:#e8eef8;
+      --ink-2:#c3cdde;
+      --ink-3:#8d9bb3;
+      --line:#22304a;
+      --brand:#7aa2ff;
+      --brand-2:#5b8bff;
+      --brand-soft:#16233c;
+      --warn:#f0b862;
+      --warn-soft:#241c10;
+      --warn-line:#4a3a1c;
+      --danger:#ff8a76;
+      --ok:#5fd0bd;
+      --ok-soft:#10241f;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -16px rgba(0,0,0,.7);
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4),0 6px 18px -12px rgba(0,0,0,.6);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 520px at 12% -12%, var(--bg-grad-1), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, var(--bg-grad-2), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:clamp(16px,4vw,40px) clamp(14px,4vw,28px) 72px}
+
+  /* ---------- Header ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    border-radius:22px;
+    padding:clamp(22px,4.5vw,38px);
+    color:#fff;
+    background:linear-gradient(135deg,#111c33 0%,#1e3a8a 55%,#2563eb 100%);
+    box-shadow:var(--shadow);
+  }
+  .hero::after{
+    content:"";
+    position:absolute;inset:auto -60px -120px auto;
+    width:320px;height:320px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 62%);
+    pointer-events:none;
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;letter-spacing:.02em;
+    padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.28);
+    backdrop-filter:blur(6px);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.28)}
+  .hero h1{margin:14px 0 8px;font-size:clamp(22px,4.4vw,34px);line-height:1.28;font-weight:800;letter-spacing:-.01em}
+  .hero p{margin:0;color:rgba(255,255,255,.86);font-size:clamp(14px,3.2vw,15.5px);max-width:62ch}
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(18px,3.6vw,26px);
+    margin-top:18px;
+    box-shadow:var(--shadow-sm);
+  }
+  .sec-head{display:flex;align-items:center;gap:12px;margin:0 0 4px}
+  .sec-num{
+    flex:none;display:grid;place-items:center;
+    width:34px;height:34px;border-radius:11px;
+    background:var(--brand-soft);color:var(--brand-2);
+    font-weight:800;font-size:15px;
+  }
+  .sec-head h2{margin:0;font-size:clamp(16.5px,3.4vw,19px);font-weight:750;letter-spacing:-.005em}
+  .sec-sub{margin:2px 0 14px 46px;color:var(--ink-3);font-size:13.5px}
+
+  /* ---------- Warning ---------- */
+  .warn{
+    border:1px solid var(--warn-line);
+    background:var(--warn-soft);
+  }
+  .warn .sec-head h2{color:var(--warn)}
+  .warn .sec-num{background:rgba(180,83,9,.12);color:var(--warn)}
+  .warn p{margin:0 0 10px}
+  .warn p:last-child{margin-bottom:0}
+  .hl{font-weight:700;color:var(--danger)}
+  .ink-strong{font-weight:650;color:var(--ink)}
+
+  a{color:var(--brand-2);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--brand) 35%,transparent);transition:border-color .18s,color .18s}
+  a:hover{color:var(--brand);border-bottom-color:currentColor}
+
+  /* ---------- Steps ---------- */
+  .steps{list-style:none;margin:6px 0 0;padding:0;counter-reset:s -1}
+  .steps li{
+    position:relative;
+    padding:14px 14px 14px 54px;
+    border-radius:12px;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--brand-soft) 55%,transparent),transparent);
+    border:1px solid var(--line);
+    margin-bottom:10px;
+  }
+  .steps li:last-child{margin-bottom:0}
+  .steps li::before{
+    counter-increment:s;content:counter(s);
+    position:absolute;left:13px;top:13px;
+    width:28px;height:28px;border-radius:9px;
+    display:grid;place-items:center;
+    background:var(--brand);color:#fff;font-weight:800;font-size:13.5px;
+    box-shadow:0 6px 14px -6px color-mix(in srgb,var(--brand) 70%,transparent);
+  }
+  .steps .k{font-weight:700;color:var(--ink)}
+  .steps .tip{display:block;margin-top:6px;color:var(--ink-2);font-size:13.5px}
+  .steps .ipv4{
+    display:inline-block;margin:0 4px;padding:1px 7px;border-radius:6px;
+    background:rgba(180,83,9,.13);color:var(--warn);
+    font-size:12px;font-weight:750;letter-spacing:.04em;
+    vertical-align:1px;white-space:nowrap;
+  }
+  .steps b{color:var(--ink);font-weight:700}
+  .steps u{
+    text-decoration-color:var(--danger);text-decoration-thickness:2px;text-underline-offset:2px;
+    color:var(--danger);font-weight:650;
+  }
+
+  /* ---------- Code ---------- */
+  .code{
+    position:relative;
+    margin:6px 0 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:#0d1526;
+    overflow:hidden;
+  }
+  .code pre{
+    margin:0;padding:16px 62px 16px 16px;
+    overflow-x:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:13.5px;line-height:1.7;color:#d7e3ff;
+    -webkit-overflow-scrolling:touch;
+  }
+  .code .cmd{color:#7dd3fc}
+  .code .arg{color:#fcd34d}
+  .copy{
+    position:absolute;top:10px;right:10px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);
+    color:#dbe6ff;font-size:12px;font-weight:600;
+    padding:5px 10px;border-radius:8px;cursor:pointer;
+    transition:background .18s,border-color .18s;
+  }
+  .copy:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.34)}
+
+  .result{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--ok-soft);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);color:var(--ink-2);font-size:14px}
+  .result .ico{flex:none;margin-top:2px;color:var(--ok)}
+  .result b{color:var(--ok)}
+
+  /* ---------- Footer ---------- */
+  footer{margin-top:26px;text-align:center;color:var(--ink-3);font-size:12.5px;line-height:1.9}
+  footer .sep{opacity:.5;margin:0 8px}
+
+  /* ---------- Floating QQ ---------- */
+  .fab{
+    position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));
+    display:inline-flex;align-items:center;gap:9px;
+    padding:11px 16px;border-radius:999px;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+    font-size:13.5px;font-weight:650;text-decoration:none;border:0;
+    box-shadow:0 12px 28px -10px rgba(37,99,235,.75);
+    transition:transform .18s ease, box-shadow .18s ease;
+    z-index:20;
+  }
+  .fab:hover{transform:translateY(-2px);box-shadow:0 18px 34px -12px rgba(37,99,235,.85);color:#fff;border:0}
+  .fab svg{flex:none}
+  .fab .n{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+
+  @media (max-width:520px){
+    body{font-size:15.5px}
+    .sec-sub{margin-left:0;margin-top:6px}
+    .steps li{padding:12px 12px 12px 50px}
+    .code pre{padding:14px 14px 54px}
+    .copy{top:auto;bottom:10px;right:10px}
+    .fab{border-radius:16px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge"><span class="dot"></span>免费 DNS · 车机工程模式</span>
+    <h1>防骗警告 &amp; 使用说明</h1>
+    <p>本 DNS 为免费服务，由 <a href="http://gwm.90apt.com" style="color:#fff;border-bottom-color:rgba(255,255,255,.5)">90APT.com</a> 提供搭建与教程，点击可查看详细教程。</p>
+  </header>
+
+  <section class="card warn">
+    <div class="sec-head">
+      <span class="sec-num">!</span>
+      <h2>请务必先读</h2>
+    </div>
+    <p>由于免费行为触动了车圈知名骗子<span class="ink-strong">「哈弗益达」</span>的利益，群号与 DNS 持续被其举报，因此 <span class="ink-strong">DNS 失效时间不确定</span>。</p>
+    <p><span class="ink-strong">90APT 从未授权「哈弗益达」</span>使用本站的 DNS、技术原理和方法，任何以本服务名义的<span class="hl">收费行为均为骗子，谨防上当</span>。</p>
+  </section>
+
+  <section class="card">
+    <div class="sec-head">
+      <span class="sec-num">1</span>
+      <h2>DNS 使用方法（以安波福为例）</h2>
+    </div>
+    <p class="sec-sub">按 0 → 4 顺序操作即可，车机网络与第二部手机需按步骤准备。</p>
+    <ol class="steps">
+      <li><span class="k">安波福安装调试模式。</span>车机使用移动数据，打开「智能手册」正确选择，更新一次数据；然后关闭移动网络，并给予智能手册存储权限。</li>
+      <li><span class="k">准备一个 Wi-Fi 或手机热点</span>，提供一个稳定的 WIFI 网络，<span class="ipv4">注意</span>使用 <b>IPv4</b>，<u>不要使用 IPv6</u>。</li>
+      <li><span class="k">准备第二部手机</span>，第二部需要连接上面的 Wi-Fi 并且能够同时共享热点。</li>
+      <li><span class="k">第二部手机的 Wi-Fi 修改 DNS 域名</span>为免费 DNS 的 IP。</li>
+      <li><span class="k">车辆连接第二部手机的热点</span>，点击「智能手册」，即可安装工装工程模式，使用 ADB。</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <div class="sec-head">
+      <span class="sec-num">2</span>
+      <h2>CMD 简单测试</h2>
+    </div>
+    <p class="sec-sub">在电脑命令行中执行以下命令，验证 DNS 是否生效。</p>
+    <div class="code">
+      <button class="copy" type="button" data-copy="nslookup dzsms.gwm.com.cn DNS地址">复制</button>
+      <pre><span class="cmd">nslookup</span> dzsms.gwm.com.cn <span class="arg">DNS地址</span></pre>
+    </div>
+    <div class="result">
+      <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <div>若 <b>dzsms.gwm.com.cn</b> 返回本服务器地址，则为正常；<span class="ink-strong">超时代表已失效（挂了）</span>。</div>
+    </div>
+  </section>
+
+  <footer>
+    90APT 车友交流 QQ 群 <b class="ink-strong">468902455</b><br>
+    <span class="sep">·</span>免费 DNS 服务说明<span class="sep">·</span>谨防收费骗子<span class="sep">·</span>
+  </footer>
+
+</div>
+
+<a class="fab" href="https://qm.qq.com/cgi-bin/qm/qr?k=&jump_from=webapi&search=468902455" target="_blank" rel="noopener" aria-label="加入 QQ 群 468902455">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c3.1 0 5.6 2.4 5.6 5.4 0 .7-.1 1.4-.3 2 .9 1 1.6 2.3 1.9 3.6.2.9-.1 1.6-.8 1.9-.4.2-1 .2-1.6 0-.5 1.1-1.4 2-2.5 2.5.3.3.5.7.5 1.1 0 .9-.8 1.5-2.8 1.5s-2.8-.6-2.8-1.5c0-.4.2-.8.5-1.1-1.1-.5-2-1.4-2.5-2.5-.6.2-1.2.2-1.6 0-.7-.3-1-1-.8-1.9.3-1.3 1-2.6 1.9-3.6-.2-.6-.3-1.3-.3-2C6.4 4.4 8.9 2 12 2Z"/></svg>
+  QQ群 <span class="n">468902455</span>
+</a>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy') || '';
+      var done = function(){ var o = btn.textContent; btn.textContent = '已复制'; setTimeout(function(){ btn.textContent = o; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+</script>
+</body>
+</html>
