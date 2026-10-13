@@ -19,6 +19,9 @@
 
 html {
     scroll-behavior: smooth;
+    /* 导航栏是 position:固定，实测高度 89.6px。不预留这段间距的话，
+       锚点跳转会把它盖在板块标题上（原先只剩 10.4px 余量，近乎贴脸）。 */
+    scroll-padding-top: 100px;
 }
 
 body {
@@ -194,6 +197,13 @@ body {
     gap: 6px;
     cursor: pointer;
     z-index: 1001;
+    /* 该元素是 <button>（为了键盘可达与读屏可识别），清掉浏览器默认外观 */
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .hamburger span {
@@ -218,6 +228,7 @@ body {
 
 .hero-content {
     max-width: 900px;
+    /* 见 @keyframes fadeInUp：这里刻意不用会占 transform 的写法 */
     animation: fadeInUp 1s ease;
 }
 
@@ -290,6 +301,31 @@ body {
     font-size: 1.05rem;
     font-weight: 500;
     line-height: 1.7;
+    text-decoration: none;
+    transition: background var(--transition-speed), border-color var(--transition-speed),
+                box-shadow var(--transition-speed), transform var(--transition-speed);
+}
+
+/* 点击可跳转到该 DNS 服务器 */
+.hero-dns::after {
+    content: '\2197\FE0E';
+    margin-left: 0.45rem;
+    font-size: 0.9em;
+    color: #7dd3fc;
+    transition: transform var(--transition-speed);
+}
+
+.hero-dns:hover,
+.hero-dns:focus-visible {
+    background: rgba(56, 189, 248, 0.24);
+    border-color: rgba(56, 189, 248, 0.8);
+    box-shadow: 0 6px 22px rgba(56, 189, 248, 0.28);
+    transform: translateY(-2px);
+}
+
+.hero-dns:hover::after,
+.hero-dns:focus-visible::after {
+    transform: translate(2px, -2px);
 }
 
 .hero-dns-ip {
@@ -354,18 +390,6 @@ body {
     box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
 }
 
-.btn-secondary {
-    background: var(--glass-bg);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
 /* ===== 统计数据 ===== */
 .stats-container {
     display: grid;
@@ -383,7 +407,8 @@ body {
     border-radius: 20px;
     padding: 2rem 1.5rem;
     text-align: center;
-    transition: all var(--transition-speed) ease;
+    /* transform 留给 JS 的 3D 倾斜，不参与过渡 */
+    transition: all var(--transition-speed) ease, transform 0s;
     position: relative;
     overflow: hidden;
 }
@@ -401,7 +426,7 @@ body {
 }
 
 .stat-card:hover {
-    transform: translateY(-10px);
+    translate: 0 -10px;
     border-color: rgba(102, 126, 234, 0.3);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
@@ -466,18 +491,6 @@ body {
     color: var(--text-secondary);
     font-size: 0.98rem;
     line-height: 1.8;
-}
-
-.anti-scam-more {
-    display: inline-block;
-    margin-top: 0.9rem;
-    color: #ffb4c0;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.anti-scam-more:hover {
-    color: #fff;
 }
 
 .anti-scam-full {
@@ -634,9 +647,13 @@ body {
     padding: 2.5rem;
     position: relative;
     overflow: hidden;
-    transition: all var(--transition-speed) ease;
+    /* transform 已让给 JS 的 3D 倾斜（行内样式），必须先结束过渡，
+       否则鼠标每移动一次都被 0.3s 插值一次，卡片永远追不上指针。 */
+    transition: all var(--transition-speed) ease, transform 0s;
     opacity: 0;
-    transform: translateY(30px);
+    /* 入场位移与 hover 抬起统一改用独立属性 translate / scale：
+       它们与 transform 是互不干扰的两套属性，不会再被行内 transform 覆盖。 */
+    translate: 0 30px;
     text-decoration: none;
     color: inherit;
     display: block;
@@ -644,7 +661,7 @@ body {
 
 .tutorial-card.visible {
     opacity: 1;
-    transform: translateY(0);
+    translate: 0 0;
 }
 
 .tutorial-card::before {
@@ -665,7 +682,8 @@ body {
 }
 
 .tutorial-card:hover {
-    transform: translateY(-10px) scale(1.02);
+    translate: 0 -10px;
+    scale: 1.02;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
@@ -747,18 +765,18 @@ body {
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    transition: all var(--transition-speed) ease;
+    transition: all var(--transition-speed) ease, transform 0s;
     opacity: 0;
-    transform: translateY(30px);
+    translate: 0 30px;
 }
 
 .feature-item.visible {
     opacity: 1;
-    transform: translateY(0);
+    translate: 0 0;
 }
 
 .feature-item:hover {
-    transform: translateY(-5px);
+    translate: 0 -5px;
     border-color: rgba(102, 126, 234, 0.3);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
@@ -807,18 +825,18 @@ body {
     overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: all var(--transition-speed) ease;
+    transition: all var(--transition-speed) ease, transform 0s;
     opacity: 0;
-    transform: translateY(30px);
+    translate: 0 30px;
 }
 
 .products-card.visible {
     opacity: 1;
-    transform: translateY(0);
+    translate: 0 0;
 }
 
 .products-card:hover {
-    transform: translateY(-10px);
+    translate: 0 -10px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
     border-color: rgba(102, 126, 234, 0.3);
 }
@@ -1046,14 +1064,17 @@ body {
 }
 
 /* ===== 动画 ===== */
+/* 入场位移用独立属性 translate 书写，不占用 transform ——
+   .hero-content 的 transform 要留给 JS 的鼠标跟随倾斜。
+   若改用 transform，动画运行的 1 秒内 CSS 动画会压过行内样式，倾斜会失效。 */
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        translate: 0 30px;
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        translate: 0 0;
     }
 }
 
@@ -1307,120 +1328,11 @@ body {
     color: var(--text-primary);
 }
 
-/* ===== 华阳 / 安波福 全流程（核心功能内嵌） ===== */
-.guide-flows {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    gap: 3.5rem;
-}
-
-.guide-flow .guide-head {
-    margin-bottom: 2rem;
-}
-
-.guide-flow .guide-head p {
-    max-width: 760px;
-}
-
-.guide-timeline {
-    position: relative;
-    padding-left: 2rem;
-}
-
-.guide-timeline::before {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 8px;
-    bottom: 8px;
-    width: 2px;
-    background: var(--primary-gradient);
-    opacity: 0.5;
-}
-
-.guide-step {
-    position: relative;
-    padding-bottom: 2rem;
-}
-
-.guide-step:last-child {
-    padding-bottom: 0;
-}
-
-.guide-step::before {
-    content: '';
-    position: absolute;
-    left: -2rem;
-    top: 0.5rem;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent-color);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-}
-
-.guide-step h4 {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    font-size: 1.15rem;
-    margin-bottom: 0.5rem;
-}
-
-.guide-step-no {
-    display: inline-block;
-    padding: 0.15rem 0.55rem;
-    border-radius: 6px;
-    background: var(--glass-bg);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: var(--accent-color);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-
-.guide-step p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.8;
-}
-
-.guide-step p + p {
-    margin-top: 0.5rem;
-}
-
-.guide-step ul {
-    list-style: none;
-    margin-top: 0.6rem;
-}
-
-.guide-step ul li {
-    position: relative;
-    padding: 0.25rem 0 0.25rem 1.1rem;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.75;
-}
-
-.guide-step ul li::before {
-    content: '·';
-    position: absolute;
-    left: 0.25rem;
-    color: var(--accent-color);
-    font-weight: 800;
-}
-
-.guide-step ul li b {
-    color: var(--text-primary);
-}
-
-.guide-mono {
-    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.9em;
-    color: #c7d2fe;
-}
+/* 原「华阳 / 安波福 全流程」内嵌区块的样式（.guide-flows / .guide-flow /
+   .guide-timeline / .guide-step / .guide-step-no / .guide-mono）已随
+   index.html 中对应内容一并移除 —— 2026-10-13 清理死规则。
+   原始长文档页 90apt.html 同日删除，最后一份留存于
+   .workbuddy/backup/90apt.html.20261013.bak，需要恢复时按同样结构重写样式即可。 */
 
 .guide-pwd {
     display: inline-block;
@@ -1448,23 +1360,7 @@ body {
     white-space: nowrap;
 }
 
-.guide-code {
-    margin: 0.9rem 0 0;
-    padding: 0.9rem 1.1rem;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    overflow-x: auto;
-    font-family: Consolas, 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.85rem;
-    line-height: 1.7;
-    color: #c9d6ee;
-    white-space: pre;
-}
-
-.guide-code-c {
-    color: #94a3b8;
-}
+/* .guide-code / .guide-code-c 同样已随全流程区块移除（2026-10-13）。 */
 
 /* ===== 网盘资源与交流（教程中心内嵌） ===== */
 .guide-res {
@@ -1637,14 +1533,6 @@ body {
         font-size: 1.3rem;
     }
 
-    .guide-timeline {
-        padding-left: 1.5rem;
-    }
-
-    .guide-step::before {
-        left: -1.5rem;
-    }
-
     .guide-scam-table th,
     .guide-scam-table td {
         padding: 0.6rem 0.8rem;
@@ -1660,5 +1548,30 @@ body {
 
     .guide-scam-evidence img {
         max-width: 100%;
+    }
+}
+
+/* ===== 无障碍：尊重系统「减少动态效果」设置 =====
+   站内有三处无限动画（.floating-shape 漂浮 20s、.hero-badge 脉冲 2s、
+   .floating-card 漂浮 6s），前庭敏感的用户需要能关掉它们。
+   注意用 translate / scale 而非 transform 承载的位移不受影响，
+   因为下面只是把动画与过渡时长压到 0，位置本身仍然正确。 */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .floating-shape,
+    .hero-badge,
+    .floating-card {
+        animation: none !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
