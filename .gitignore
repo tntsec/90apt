@@ -1,0 +1,4 @@
+
+# TLS private key + certificate (deployed to /etc/ manually)
+linux/key.pem
+linux/cert.pem
